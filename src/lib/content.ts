@@ -12,7 +12,7 @@ const projectId = import.meta.env.SANITY_PROJECT_ID;
 const dataset = import.meta.env.SANITY_DATASET || 'production';
 
 const sanity = projectId
-  ? createClient({ projectId, dataset, apiVersion: '2025-01-01', useCdn: true })
+  ? createClient({ projectId, dataset, apiVersion: '2025-01-01', useCdn: false }) // sem CDN: a montagem do site sempre pega a versão recém-publicada
   : null;
 const imgBuilder = sanity ? createImageUrlBuilder(sanity) : null;
 
