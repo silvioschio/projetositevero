@@ -30,7 +30,8 @@ const {
       <input name="whatsapp" type="tel" placeholder="WhatsApp com DDD" autocomplete="tel" inputmode="tel" required>
       {variante !== 'imovel' && variante !== 'calculadora' && <input name="email" type="email" placeholder="E-mail" autocomplete="email" required={variante === 'guia'}>}
     </div>
-    {(variante === 'imovel' || variante === 'calculadora') && <div class="form-row"><input name="email" type="email" placeholder="E-mail (opcional)" autocomplete="email"></div>}
+    {variante === 'imovel' && <div class="form-row"><input name="email" type="email" placeholder="E-mail" autocomplete="email"></div>}
+    {variante === 'calculadora' && <div class="form-row"><input name="email" type="email" placeholder="Seu melhor e-mail" autocomplete="email" required></div>}
 
     {variante === 'guia' && (
       <div class="form-row">
