@@ -38,9 +38,9 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
         <div class="form-row"><input id="c-parcela" name="parcela" inputmode="numeric" placeholder="R$ 5.000" data-moeda required></div>
         <label class="calc-label" for="c-reforco">3. Reforço anual <small>13º, bônus, férias… se não tiver, deixe em branco</small></label>
         <div class="form-row"><input id="c-reforco" name="reforco" inputmode="numeric" placeholder="R$ 20.000" data-moeda></div>
-        <label class="calc-label" for="c-prazo">Em quantos meses? <small>o mais comum nas construtoras é 60</small></label>
+        <label class="calc-label" for="c-prazo">Em quantos meses? <small>o mais comum em pré-lançamento é 120</small></label>
         <div class="form-row">
-          <select id="c-prazo" name="prazo">{PRAZOS.map((p) => <option value={p} selected={p === 60}>{p} meses ({Math.floor(p / 12)} reforços)</option>)}</select>
+          <select id="c-prazo" name="prazo">{PRAZOS.map((p) => <option value={p} selected={p === 120}>{p} meses ({Math.floor(p / 12)} reforços)</option>)}</select>
         </div>
         <p class="form-error calc-erro">Preencha pelo menos a entrada e a parcela mensal.</p>
         <button class="btn btn-gold btn-block" type="submit">Calcular</button>
