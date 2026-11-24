@@ -7,7 +7,7 @@ import { corretor } from './schemas/corretor';
 export default defineConfig({
   name: 'vero',
   title: 'VERO · Painel do site',
-  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'COLOQUE_O_PROJECT_ID',
+  projectId: process.env.SANITY_STUDIO_PROJECT_ID || '2ueazs6o',
   dataset: 'production',
   plugins: [
     structureTool({

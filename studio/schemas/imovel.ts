@@ -26,6 +26,8 @@ export const imovel = defineType({
     defineField({ name: 'tipo', title: 'Tipo', type: 'string', group: 'principal', initialValue: 'Apartamento',
       options: { list: ['Apartamento', 'Cobertura', 'Studio', 'Casa', 'Sala comercial'] }, validation: (r) => r.required() }),
     defineField({ name: 'destaque', title: 'Mostrar em destaque na página inicial?', type: 'boolean', group: 'principal', initialValue: false }),
+    defineField({ name: 'ordem', title: 'Ordem no site', type: 'number', group: 'principal',
+      description: 'Opcional. Menor número aparece primeiro (ex.: 10, 20, 30). Sem número, o imóvel aparece antes dos numerados, do mais novo para o mais antigo.' }),
     defineField({ name: 'preco', title: 'Preço (texto)', type: 'string', group: 'principal', initialValue: 'Sob consulta',
       description: 'Ex.: "Sob consulta" ou "A partir de R$ 890 mil".' }),
     defineField({ name: 'resumo', title: 'Resumo (1–2 frases)', type: 'text', rows: 3, group: 'principal',

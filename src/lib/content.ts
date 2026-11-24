@@ -33,7 +33,7 @@ let cacheImoveis: Imovel[] | null = null;
 export async function getImoveis(): Promise<Imovel[]> {
   if (cacheImoveis) return cacheImoveis;
   if (!sanity) return (cacheImoveis = imoveisLocais);
-  const docs = await sanity.fetch(`*[_type == "imovel" && !(_id in path("drafts.**"))] | order(destaque desc, _createdAt desc)`);
+  const docs = await sanity.fetch(`*[_type == "imovel" && !(_id in path("drafts.**"))] | order(coalesce(ordem, 0) asc, _createdAt desc)`);
   return (cacheImoveis = docs.map(mapImovel));
 }
 
