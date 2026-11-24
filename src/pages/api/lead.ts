@@ -97,6 +97,10 @@ export const POST: APIRoute = async ({ request }) => {
   if (status) lead.status_id = status;
 
   try {
+    // Campos personalizados do lead (Data de Entrada, Fonte do Lead = Site). Se falhar, o lead segue sem eles.
+    const campos = await camposPersonalizados(base, headers);
+    if (campos.length) lead.custom_fields_values = campos;
+
     // 1º caminho: "Leads de entrada" (Incoming leads) do funil, via API de não-classificados.
     // Se o Kommo recusar, cai no 2º caminho (lead direto na 1ª etapa) para nunca perder o contato.
     let leadId: number | undefined;
@@ -104,7 +108,8 @@ export const POST: APIRoute = async ({ request }) => {
       const agora = Math.floor(Date.now() / 1000);
       const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || '0.0.0.0';
       const pagina = clean(body.pagina, 500) || 'https://www.verosolucoesimobiliarias.com.br/';
-      const leadSemEtapa = { name: lead.name, _embedded: { tags: (lead._embedded as any).tags } };
+      const leadSemEtapa: Record<string, unknown> = { name: lead.name, _embedded: { tags: (lead._embedded as any).tags } };
+      if (campos.length) leadSemEtapa.custom_fields_values = campos;
       const entrada = {
         source_name: 'Site VERO',
         source_uid: `site-${origemId}-${agora}-${Math.random().toString(36).slice(2, 8)}`,
@@ -154,6 +159,46 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: false, erro: 'Erro de conexão com o CRM' }, 502);
   }
 };
+
+// ---- Campos personalizados do Kommo, encontrados pelo nome (sem IDs fixos no código) ----
+const normaliza = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+type Campo = { id: number; name: string; type: string; enums?: { id: number; value: string }[] | null };
+let cacheCampos: { em: number; lista: Campo[] } | null = null;
+
+async function listaCampos(base: string, headers: Record<string, string>): Promise<Campo[]> {
+  if (cacheCampos && Date.now() - cacheCampos.em < 10 * 60 * 1000) return cacheCampos.lista;
+  const lista: Campo[] = [];
+  for (let page = 1; page <= 5; page++) {
+    const r = await fetch(`${base}/leads/custom_fields?limit=250&page=${page}`, { headers });
+    if (r.status === 204) break;
+    if (!r.ok) throw new Error(`custom_fields ${r.status}`);
+    const d = (await r.json()) as any;
+    lista.push(...(d?._embedded?.custom_fields ?? []));
+    if (!d?._links?.next) break;
+  }
+  cacheCampos = { em: Date.now(), lista };
+  return lista;
+}
+
+async function camposPersonalizados(base: string, headers: Record<string, string>) {
+  const valores: Record<string, unknown>[] = [];
+  try {
+    const lista = await listaCampos(base, headers);
+    const acha = (nome: string) => lista.find((c) => normaliza(c.name) === normaliza(nome));
+
+    const data = acha('Data de Entrada');
+    if (data) valores.push({ field_id: data.id, values: [{ value: Math.floor(Date.now() / 1000) }] });
+    else console.error('[lead] Campo "Data de Entrada" não encontrado no Kommo');
+
+    const fonte = acha('Fonte do Lead');
+    const opcao = fonte?.enums?.find((e) => normaliza(e.value) === 'site');
+    if (fonte && opcao) valores.push({ field_id: fonte.id, values: [{ enum_id: opcao.id }] });
+    else console.error('[lead] Campo "Fonte do Lead" ou opção "Site" não encontrado no Kommo');
+  } catch (err) {
+    console.error('[lead] Não foi possível ler os campos do Kommo', err);
+  }
+  return valores;
+}
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
