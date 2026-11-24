@@ -345,4 +345,6 @@ h1, h2, h3, .quote, .stat strong, .fact strong, .letter, .prop-price strong {
 .calc-banner-inner .section-title { margin-bottom: 10px; }
 .calc-link { display: block; margin-top: 16px; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: .06em; color: var(--gold); }
 .calc-link:hover { color: var(--gold-light); }
-@media (max-width: 720px) { .calc-banner { padding-bottom: 80px; } .calc-banner-inner { padding: 30px; } }
+.calc-banner-topo { padding: 70px 0 0; }
+.calc-banner-topo + section { padding-top: 90px; }
+@media (max-width: 720px) { .calc-banner { padding-bottom: 80px; } .calc-banner-inner { padding: 30px; } .calc-banner-topo { padding: 50px 0 0; } .calc-banner-topo + section { padding-top: 70px; } }
