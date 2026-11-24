@@ -51,6 +51,7 @@ document.querySelectorAll<HTMLFormElement>('.lead-form form').forEach((form) => 
       });
       if (!res.ok) throw new Error(String(res.status));
       box.classList.add('sent');
+      form.dispatchEvent(new CustomEvent('lead:enviado', { bubbles: true }));
       // Evento para Google Analytics / Meta Pixel, se instalados
       (window as any).dataLayer?.push({ event: 'lead', origem: data.origem });
       (window as any).fbq?.('track', 'Lead', { content_name: data.origem });

@@ -3,7 +3,7 @@ import { cidades } from '../lib/content';
 // Formulário de captação de leads. Envia para /api/lead, que cria o lead no Kommo.
 interface Props {
   origem: string;            // identifica o formulário no Kommo (ex.: "imovel-bakers-bay")
-  variante: 'guia' | 'diagnostico' | 'imovel' | 'inquilino' | 'proprietario';
+  variante: 'guia' | 'diagnostico' | 'imovel' | 'inquilino' | 'proprietario' | 'calculadora';
   titulo: string;
   sub?: string;
   botao?: string;
@@ -23,13 +23,14 @@ const {
     {sub && <p class="sub">{sub}</p>}
     {imovel && <input type="hidden" name="imovel" value={imovel}>}
     <input class="hp" type="text" name="empresa" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <slot />
 
     <div class="form-row"><input name="nome" placeholder="Seu nome" autocomplete="name" required></div>
-    <div class:list={['form-row', { two: variante !== 'imovel' }]}>
+    <div class:list={['form-row', { two: variante !== 'imovel' && variante !== 'calculadora' }]}>
       <input name="whatsapp" type="tel" placeholder="WhatsApp com DDD" autocomplete="tel" inputmode="tel" required>
-      {variante !== 'imovel' && <input name="email" type="email" placeholder="E-mail" autocomplete="email" required={variante === 'guia'}>}
+      {variante !== 'imovel' && variante !== 'calculadora' && <input name="email" type="email" placeholder="E-mail" autocomplete="email" required={variante === 'guia'}>}
     </div>
-    {variante === 'imovel' && <div class="form-row"><input name="email" type="email" placeholder="E-mail" autocomplete="email"></div>}
+    {(variante === 'imovel' || variante === 'calculadora') && <div class="form-row"><input name="email" type="email" placeholder="E-mail (opcional)" autocomplete="email"></div>}
 
     {variante === 'guia' && (
       <div class="form-row">

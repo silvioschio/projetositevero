@@ -150,3 +150,17 @@ export function economia(preco?: string, tabela?: string) {
 // Link do botão de cada cidade: página própria se existir; senão, a listagem filtrada pela cidade.
 export const linkCidade = (c: { nome: string; slug: string }, comPagina: { slug: string }[]) =>
   comPagina.some((x) => x.slug === c.slug) ? `/imoveis/${c.slug}/` : `/imoveis/?cidade=${encodeURIComponent(c.nome)}`;
+
+// Valor usado pela calculadora "Qual imóvel cabe no seu bolso?".
+// Usa o campo "Valor a partir de" do painel; se estiver vazio, tenta ler o preço em texto
+// ("A partir de R$ 335 mil", "R$ 1,2 milhão", "R$ 1.129.762,73"). "Sob consulta" = sem valor.
+export function valorCalculadora(i: { valorReferencia?: number; preco?: string }): number | null {
+  if (i.valorReferencia && i.valorReferencia > 0) return i.valorReferencia;
+  const t = (i.preco ?? '').toLowerCase();
+  const m = t.match(/r\$\s*([\d.]+(?:,\d+)?)\s*(mil\b|milh)?/);
+  if (!m) return null;
+  let n = Number(m[1].replace(/\./g, '').replace(',', '.'));
+  if (m[2] === 'mil') n *= 1_000;
+  else if (m[2] === 'milh') n *= 1_000_000;
+  return n >= 50_000 ? n : null;
+}

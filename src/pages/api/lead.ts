@@ -14,6 +14,7 @@ const ORIGENS: Record<string, string> = {
   'locacao-inquilino': 'Locação – quer alugar',
   'locacao-proprietario': 'Locação – proprietário',
   'blog-artigo': 'Blog',
+  calculadora: 'Calculadora',
 };
 
 const clean = (v: unknown, max = 300) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -57,6 +58,12 @@ export const POST: APIRoute = async ({ request }) => {
     ['Cidade', clean(body.cidade)],
     ['Tipo de locação', clean(body.periodo)],
     ['Mensagem', clean(body.mensagem, 1500)],
+    ['Entrada disponível', clean(body.calc_entrada, 40)],
+    ['Parcela mensal', clean(body.calc_parcela, 40)],
+    ['Reforço anual', clean(body.calc_reforco, 40)],
+    ['Prazo', clean(body.calc_prazo, 40)],
+    ['Poder de compra estimado', clean(body.calc_poder, 40)],
+    ['Imóveis que cabem no bolso', clean(body.calc_imoveis, 1500)],
     ['Página', clean(body.pagina, 500)],
     ['Veio de', clean(body.referrer, 300)],
     ...Object.entries(utm).map(([k, v]) => [k, clean(v, 200)] as [string, string]),

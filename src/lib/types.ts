@@ -30,6 +30,7 @@ export interface Imovel {
   entrega?: string;
   areaLazer?: string;
   preco?: string;        // texto livre: "Sob consulta", "A partir de R$ 890 mil"
+  valorReferencia?: number; // valor "a partir de" em número, só para a calculadora (não aparece na página)
   resumo: string;        // 1–2 frases (cards e meta description)
   descricao: string[];   // parágrafos
   plantas?: Planta[];

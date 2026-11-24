@@ -1,0 +1,214 @@
+---
+// Calculadora "Qual imóvel cabe no seu bolso?"
+// A pessoa vê o poder de compra na hora; para ver QUAIS imóveis cabem, deixa nome e WhatsApp (vira lead no Kommo).
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { getImoveis, valorCalculadora } from '../lib/content';
+
+const todos = (await getImoveis()).filter((i) => i.finalidade === 'venda');
+const vitrine = todos
+  .map((i) => ({
+    slug: i.slug, nome: i.nome, cidade: i.cidade, bairro: i.bairro ?? '', status: i.revenda ? 'Revenda' : i.status,
+    preco: i.preco ?? 'Sob consulta', valor: valorCalculadora(i), foto: i.fotos[0]?.src ?? '', fotoAlt: i.fotos[0]?.alt ?? i.nome,
+  }))
+  .filter((i) => i.valor);
+const semValor = todos.length - vitrine.length;
+const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
+---
+<Base solidHeader
+  title="Qual imóvel cabe no seu bolso? | Calculadora VERO – Litoral de SC"
+  description="Informe a entrada, a parcela mensal e o reforço anual que você pode pagar e descubra quais imóveis no litoral de Santa Catarina cabem no seu bolso. Simulação gratuita.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Calculadora gratuita</span>
+      <h1>Qual imóvel <span class="gold-text">cabe no seu bolso?</span></h1>
+      <p>Responda 3 perguntas e descubra o seu poder de compra direto com a construtora e quais empreendimentos no litoral de SC cabem no seu orçamento.</p>
+    </div>
+  </div>
+
+  <section class="calc-section">
+    <div class="container calc-grid">
+      <form class="lead-form calc-form" id="calc" novalidate>
+        <h3>Quanto você pode investir?</h3>
+        <p class="sub">Valores aproximados já ajudam. Nada é enviado até você pedir.</p>
+        <label class="calc-label" for="c-entrada">1. Entrada disponível <small>dinheiro guardado, FGTS, carro, outro imóvel…</small></label>
+        <div class="form-row"><input id="c-entrada" name="entrada" inputmode="numeric" placeholder="R$ 100.000" data-moeda required></div>
+        <label class="calc-label" for="c-parcela">2. Parcela mensal <small>quanto cabe no seu mês sem apertar</small></label>
+        <div class="form-row"><input id="c-parcela" name="parcela" inputmode="numeric" placeholder="R$ 5.000" data-moeda required></div>
+        <label class="calc-label" for="c-reforco">3. Reforço anual <small>13º, bônus, férias… se não tiver, deixe em branco</small></label>
+        <div class="form-row"><input id="c-reforco" name="reforco" inputmode="numeric" placeholder="R$ 20.000" data-moeda></div>
+        <label class="calc-label" for="c-prazo">Em quantos meses? <small>o mais comum nas construtoras é 60</small></label>
+        <div class="form-row">
+          <select id="c-prazo" name="prazo">{PRAZOS.map((p) => <option value={p} selected={p === 60}>{p} meses ({Math.floor(p / 12)} reforços)</option>)}</select>
+        </div>
+        <p class="form-error calc-erro">Preencha pelo menos a entrada e a parcela mensal.</p>
+        <button class="btn btn-gold btn-block" type="submit">Calcular</button>
+      </form>
+
+      <div class="calc-result" id="resultado" hidden>
+        <span class="eyebrow">Seu poder de compra estimado</span>
+        <p class="calc-poder gold-text" data-poder></p>
+        <ul class="calc-conta" data-conta></ul>
+
+        <div class="calc-teaser" data-teaser>
+          <p class="calc-count" data-count></p>
+          <div class="calc-ghost" aria-hidden="true"><span></span><span></span><span></span></div>
+          <LeadForm origem="calculadora" variante="calculadora" id="calc-lead"
+            titulo="Veja quais imóveis cabem no seu bolso"
+            sub="Libere a lista completa e a simulação. Um especialista da VERO pode tirar suas dúvidas pelo WhatsApp."
+            botao="Ver os imóveis"
+            sucesso="Pronto! Os imóveis estão logo abaixo. Um especialista da VERO pode falar com você pelo WhatsApp.">
+            <input type="hidden" name="calc_entrada">
+            <input type="hidden" name="calc_parcela">
+            <input type="hidden" name="calc_reforco">
+            <input type="hidden" name="calc_prazo">
+            <input type="hidden" name="calc_poder">
+            <input type="hidden" name="calc_imoveis">
+          </LeadForm>
+        </div>
+      </div>
+    </div>
+
+    <div class="container calc-lista" id="lista" hidden>
+      <div data-cabem></div>
+      <div data-quase></div>
+      {semValor > 0 && <p class="calc-extra">Temos ainda <b>{semValor} empreendimento{semValor > 1 ? 's' : ''}</b> com valor sob consulta que podem caber na sua simulação.</p>}
+      <a class="btn btn-gold" data-wa target="_blank" rel="noopener" href="#">Falar com um especialista no WhatsApp</a>
+    </div>
+
+    <div class="container">
+      <p class="disclaimer">Simulação estimada, apenas para referência. Não considera correção monetária das parcelas (INCC/IGP-M), juros nem a análise de crédito. As condições de pagamento são definidas por cada construtora e podem mudar sem aviso. Valores "a partir de" referem-se à unidade de menor valor disponível.</p>
+    </div>
+  </section>
+</main>
+</Base>
+
+<script is:inline define:vars={{ vitrine }}>
+  window.__vitrine = vitrine;
+</script>
+<script>
+  import { WHATSAPP } from '../lib/content';
+  type Item = { slug: string; nome: string; cidade: string; bairro: string; status: string; preco: string; valor: number; foto: string; fotoAlt: string };
+  const vitrine: Item[] = (window as any).__vitrine ?? [];
+  const QUASE = 1.15; // "quase lá": até 15% acima do poder de compra
+
+  const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  const num = (v: string) => Number(v.replace(/\D/g, '')) || 0;
+  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+  // Formata os campos de dinheiro enquanto a pessoa digita
+  document.querySelectorAll<HTMLInputElement>('[data-moeda]').forEach((el) =>
+    el.addEventListener('input', () => { const n = num(el.value); el.value = n ? brl(n) : ''; }));
+
+  const form = document.getElementById('calc') as HTMLFormElement;
+  const res = document.getElementById('resultado')!;
+  const lista = document.getElementById('lista')!;
+  const leadBox = document.getElementById('calc-lead')!;
+  const leadForm = leadBox.querySelector('form')!;
+  const LIBERADO = 'vero_calc_liberado';
+  let cabem: Item[] = [], quase: Item[] = [];
+
+  const card = (i: Item, selo: string) => `
+    <a class="card" href="/imovel/${i.slug}/">
+      <div class="card-media">${i.foto ? `<img src="${esc(i.foto)}" alt="${esc(i.fotoAlt)}" loading="lazy" width="600" height="450">` : ''}
+        <span class="badge">${esc(selo)}</span></div>
+      <div class="card-body">
+        <span class="card-loc">${esc([i.bairro, i.cidade].filter(Boolean).join(' · '))}</span>
+        <h3>${esc(i.nome)}</h3>
+        <div class="card-foot"><span class="price">${esc(i.preco)}</span><span class="more">Ver imóvel →</span></div>
+      </div>
+    </a>`;
+
+  function mostrarLista() {
+    const c = lista.querySelector<HTMLElement>('[data-cabem]')!;
+    const q = lista.querySelector<HTMLElement>('[data-quase]')!;
+    c.innerHTML = cabem.length
+      ? `<h2 class="section-title">Cabem no seu <em>bolso</em></h2><div class="cards">${cabem.map((i) => card(i, '✓ Cabe no bolso')).join('')}</div>`
+      : `<h2 class="section-title">Vamos encontrar a <em>opção certa</em></h2><p class="section-lead">Nenhum imóvel da vitrine atual cabe exatamente nessa simulação, mas trabalhamos com outras opções e condições especiais negociadas com as construtoras.</p>`;
+    q.innerHTML = quase.length
+      ? `<h2 class="section-title">Quase <em>lá</em></h2><p class="section-lead">Até 15% acima da sua simulação: com um reforço a mais ou um prazo maior, podem caber.</p><div class="cards">${quase.map((i) => card(i, 'Quase lá')).join('')}</div>`
+      : '';
+    lista.hidden = false;
+    lista.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const entrada = num((form.elements.namedItem('entrada') as HTMLInputElement).value);
+    const parcela = num((form.elements.namedItem('parcela') as HTMLInputElement).value);
+    const reforco = num((form.elements.namedItem('reforco') as HTMLInputElement).value);
+    const prazo = Number((form.elements.namedItem('prazo') as HTMLSelectElement).value);
+    form.classList.toggle('error', !entrada || !parcela);
+    if (!entrada || !parcela) return;
+
+    const reforcos = Math.floor(prazo / 12);
+    const poder = entrada + parcela * prazo + reforco * reforcos;
+    cabem = vitrine.filter((i) => i.valor <= poder).sort((a, b) => b.valor - a.valor);
+    quase = vitrine.filter((i) => i.valor > poder && i.valor <= poder * QUASE).sort((a, b) => a.valor - b.valor);
+
+    res.querySelector('[data-poder]')!.textContent = `até ${brl(poder)}`;
+    res.querySelector('[data-conta]')!.innerHTML = [
+      `<li><span>Entrada</span><b>${brl(entrada)}</b></li>`,
+      `<li><span>${prazo} parcelas de ${brl(parcela)}</span><b>${brl(parcela * prazo)}</b></li>`,
+      reforco ? `<li><span>${reforcos} reforços anuais de ${brl(reforco)}</span><b>${brl(reforco * reforcos)}</b></li>` : '',
+    ].join('');
+    const n = cabem.length;
+    res.querySelector('[data-count]')!.innerHTML = n
+      ? `🔒 Encontramos <b>${n} imóve${n > 1 ? 'is' : 'l'}</b> que cabe${n > 1 ? 'm' : ''} no seu bolso${quase.length ? ` e mais <b>${quase.length}</b> quase lá` : ''}.`
+      : quase.length
+        ? `🔒 Encontramos <b>${quase.length} imóve${quase.length > 1 ? 'is' : 'l'}</b> quase dentro do seu orçamento.`
+        : '🔒 Deixe seu contato e um especialista monta opções sob medida para esse orçamento.';
+
+    // Dados que vão junto com o lead para o Kommo
+    const set = (k: string, v: string) => ((leadForm.elements.namedItem(k) as HTMLInputElement).value = v);
+    set('calc_entrada', brl(entrada));
+    set('calc_parcela', brl(parcela));
+    set('calc_reforco', reforco ? brl(reforco) : 'Não informado');
+    set('calc_prazo', `${prazo} meses`);
+    set('calc_poder', brl(poder));
+    set('calc_imoveis', [...cabem.map((i) => i.nome), ...quase.map((i) => `${i.nome} (quase lá)`)].join(', ') || 'Nenhum na vitrine atual');
+
+    const msg = `Olá! Fiz a simulação na calculadora do site da VERO: entrada de ${brl(entrada)}, parcela de ${brl(parcela)}${reforco ? ` e reforço anual de ${brl(reforco)}` : ''} em ${prazo} meses (poder de compra de ${brl(poder)}). Quero ajuda para escolher um imóvel.`;
+    lista.querySelector<HTMLAnchorElement>('[data-wa]')!.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+
+    res.hidden = false;
+    if (localStorage.getItem(LIBERADO)) {
+      res.querySelector<HTMLElement>('[data-teaser]')!.hidden = true;
+      mostrarLista();
+    } else {
+      lista.hidden = true;
+      res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  leadForm.addEventListener('lead:enviado', () => {
+    localStorage.setItem(LIBERADO, '1');
+    res.querySelector<HTMLElement>('.calc-ghost')!.hidden = true;
+    mostrarLista();
+  });
+</script>
+
+<style is:global>
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; }
+  .calc-label { display: block; font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--gold-light); margin: 14px 0 8px; }
+  .calc-label small { display: block; font-weight: 400; letter-spacing: 0; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .calc-form .btn { margin-top: 14px; }
+  .calc-erro { display: none; color: #e7a28f; font-size: 13px; }
+  .calc-form.error .calc-erro { display: block; }
+  .calc-result { scroll-margin-top: 110px; }
+  .calc-poder { font-family: var(--serif); font-size: clamp(36px, 4.6vw, 58px); line-height: 1.1; margin: 10px 0 18px; }
+  .calc-conta { list-style: none; border-top: 1px solid var(--line); margin-bottom: 30px; }
+  .calc-conta li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+  .calc-conta b { color: var(--white); font-weight: 600; white-space: nowrap; }
+  .calc-count { font-size: 18px; margin-bottom: 16px; }
+  .calc-count b { color: var(--gold-light); }
+  .calc-ghost { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .calc-ghost span { aspect-ratio: 4 / 3; border-radius: var(--radius); border: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(210,188,149,.18), rgba(255,255,255,.03)); filter: blur(1px); }
+  .calc-lista { padding-top: 70px; scroll-margin-top: 90px; }
+  .calc-lista .cards { margin: 26px 0 60px; }
+  .calc-extra { color: var(--muted); margin-bottom: 26px; }
+  .calc-extra b { color: var(--gold-light); }
+  @media (max-width: 1024px) { .calc-grid { grid-template-columns: 1fr; } }
+</style>

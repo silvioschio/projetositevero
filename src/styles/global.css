@@ -338,3 +338,11 @@ h1, h2, h3, .quote, .stat strong, .fact strong, .letter, .prop-price strong {
 .team-ig { text-align: center; font-size: 13px; color: var(--gold); }
 .team-wa { white-space: nowrap; }
 @media (max-width: 480px) { .team-wa { padding-inline: 18px; letter-spacing: .1em; } .team-body { padding: 22px; } }
+
+/* Calculadora: banner da home e link na página do imóvel */
+.calc-banner { padding: 0 0 110px; }
+.calc-banner-inner { display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap; padding: 50px; border: 1px solid var(--gold); border-radius: var(--radius); background: linear-gradient(135deg, rgba(210,188,149,.1), transparent 70%); }
+.calc-banner-inner .section-title { margin-bottom: 10px; }
+.calc-link { display: block; margin-top: 16px; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: .06em; color: var(--gold); }
+.calc-link:hover { color: var(--gold-light); }
+@media (max-width: 720px) { .calc-banner { padding-bottom: 80px; } .calc-banner-inner { padding: 30px; } }

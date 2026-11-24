@@ -30,6 +30,8 @@ export const imovel = defineType({
       description: 'Opcional. Menor número aparece primeiro (ex.: 10, 20, 30). Sem número, o imóvel aparece antes dos numerados, do mais novo para o mais antigo.' }),
     defineField({ name: 'preco', title: 'Preço (texto)', type: 'string', group: 'principal', initialValue: 'Sob consulta',
       description: 'Ex.: "Sob consulta" ou "A partir de R$ 890 mil".' }),
+    defineField({ name: 'valorReferencia', title: 'Valor a partir de (para a calculadora)', type: 'number', group: 'principal',
+      description: 'Só números, ex.: 890000. NÃO aparece na página do imóvel: é usado só na calculadora "Qual imóvel cabe no seu bolso?". Vazio = a calculadora tenta ler o "Preço (texto)"; se for "Sob consulta", o imóvel não entra na conta.' }),
     defineField({ name: 'resumo', title: 'Resumo (1–2 frases)', type: 'text', rows: 3, group: 'principal',
       description: 'Aparece nos cards e no Google. Ideal: até 160 caracteres, com cidade e principais diferenciais.',
       validation: (r) => r.required().max(220) }),
