@@ -110,7 +110,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     // Campos personalizados do lead (Data de Entrada, Fonte do Lead = Site). Se falhar, o lead segue sem eles.
-    const campos = await camposPersonalizados(base, headers);
+    const campos = await camposPersonalizados(base, headers, corretor);
     if (campos.length) lead.custom_fields_values = campos;
     const responsavel = corretor ? await usuarioKommo(base, headers, corretor.kommoNome || corretor.nome) : undefined;
     if (responsavel) lead.responsible_user_id = responsavel;
@@ -201,7 +201,7 @@ async function listaCampos(base: string, headers: Record<string, string>): Promi
   return lista;
 }
 
-async function camposPersonalizados(base: string, headers: Record<string, string>) {
+async function camposPersonalizados(base: string, headers: Record<string, string>, corretor?: { nome: string; kommoNome?: string } | null) {
   const valores: Record<string, unknown>[] = [];
   try {
     const lista = await listaCampos(base, headers);
@@ -215,6 +215,16 @@ async function camposPersonalizados(base: string, headers: Record<string, string
     const opcao = fonte?.enums?.find((e) => normaliza(e.value) === 'site');
     if (fonte && opcao) valores.push({ field_id: fonte.id, values: [{ enum_id: opcao.id }] });
     else console.error('[lead] Campo "Fonte do Lead" ou opção "Site" não encontrado no Kommo');
+
+    // Link pessoal de corretor: preenche "Encaminhamento" com a opção do corretor (ex.: CARINE).
+    // Procura pelo "Nome no Kommo" do painel, pelo nome completo ou pelo primeiro nome.
+    if (corretor) {
+      const enc = acha('Encaminhamento');
+      const nomes = [corretor.kommoNome, corretor.nome, corretor.nome.split(' ')[0]].filter(Boolean).map((n) => normaliza(n!));
+      const opcaoCorretor = enc?.enums?.find((e) => nomes.includes(normaliza(e.value)));
+      if (enc && opcaoCorretor) valores.push({ field_id: enc.id, values: [{ enum_id: opcaoCorretor.id }] });
+      else console.error(`[lead] Opção do corretor "${corretor.nome}" não encontrada no campo "Encaminhamento" do Kommo`);
+    }
   } catch (err) {
     console.error('[lead] Não foi possível ler os campos do Kommo', err);
   }
