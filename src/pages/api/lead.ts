@@ -97,19 +97,54 @@ export const POST: APIRoute = async ({ request }) => {
   if (status) lead.status_id = status;
 
   try {
-    const res = await fetch(`${base}/leads/complex`, { method: 'POST', headers, body: JSON.stringify([lead]) });
-    if (!res.ok) {
-      console.error('[lead] Kommo recusou o lead', res.status, await res.text());
-      return json({ ok: false, erro: 'Falha ao registrar no CRM' }, 502);
+    // 1º caminho: "Leads de entrada" (Incoming leads) do funil, via API de não-classificados.
+    // Se o Kommo recusar, cai no 2º caminho (lead direto na 1ª etapa) para nunca perder o contato.
+    let leadId: number | undefined;
+    if (pipeline) {
+      const agora = Math.floor(Date.now() / 1000);
+      const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || '0.0.0.0';
+      const pagina = clean(body.pagina, 500) || 'https://www.verosolucoesimobiliarias.com.br/';
+      const leadSemEtapa = { name: lead.name, _embedded: { tags: (lead._embedded as any).tags } };
+      const entrada = {
+        source_name: 'Site VERO',
+        source_uid: `site-${origemId}-${agora}-${Math.random().toString(36).slice(2, 8)}`,
+        pipeline_id: pipeline,
+        created_at: agora,
+        metadata: {
+          form_id: origemId,
+          form_name: `Site · ${origem}`,
+          form_page: pagina,
+          form_sent_at: agora,
+          ip,
+          referer: clean(body.referrer, 300) || pagina,
+        },
+        _embedded: { leads: [leadSemEtapa], contacts: [contato] },
+      };
+      const r = await fetch(`${base}/leads/unsorted/forms`, { method: 'POST', headers, body: JSON.stringify([entrada]) });
+      if (r.ok) {
+        const data = (await r.json()) as any;
+        leadId = data?._embedded?.unsorted?.[0]?._embedded?.leads?.[0]?.id;
+      } else {
+        console.error('[lead] Kommo recusou "Leads de entrada"; criando direto na etapa', r.status, await r.text());
+      }
     }
-    const [criado] = (await res.json()) as { id: number; contact_id: number }[];
+
+    if (!leadId) {
+      const res = await fetch(`${base}/leads/complex`, { method: 'POST', headers, body: JSON.stringify([lead]) });
+      if (!res.ok) {
+        console.error('[lead] Kommo recusou o lead', res.status, await res.text());
+        return json({ ok: false, erro: 'Falha ao registrar no CRM' }, 502);
+      }
+      const [criado] = (await res.json()) as { id: number; contact_id: number }[];
+      leadId = criado?.id;
+    }
 
     // Nota com todos os detalhes do formulário
-    if (criado?.id) {
+    if (leadId) {
       const r2 = await fetch(`${base}/leads/notes`, {
         method: 'POST',
         headers,
-        body: JSON.stringify([{ entity_id: criado.id, note_type: 'common', params: { text: nota } }]),
+        body: JSON.stringify([{ entity_id: leadId, note_type: 'common', params: { text: nota } }]),
       });
       if (!r2.ok) console.error('[lead] Falha ao criar nota', r2.status, await r2.text());
     }
