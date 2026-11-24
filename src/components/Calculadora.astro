@@ -1,9 +1,16 @@
 ---
 // Calculadora "Qual imóvel cabe no seu bolso?"
-// A pessoa vê o poder de compra na hora; para ver QUAIS imóveis cabem, deixa nome e WhatsApp (vira lead no Kommo).
-import Base from '../layouts/Base.astro';
-import LeadForm from '../components/LeadForm.astro';
-import { getImoveis, valorCalculadora } from '../lib/content';
+// A pessoa vê o poder de compra na hora; para ver QUAIS imóveis cabem, deixa nome, WhatsApp e e-mail (vira lead no Kommo).
+// Com "corretor": versão personalizada (link do corretor). O lead e o WhatsApp vão para quem enviou o link.
+import LeadForm from './LeadForm.astro';
+import { getImoveis, valorCalculadora, WHATSAPP } from '../lib/content';
+import type { Corretor } from '../lib/types';
+
+interface Props { corretor?: Corretor }
+const { corretor } = Astro.props;
+const primeiro = corretor?.nome.split(' ')[0];
+const whatsDestino = corretor?.whatsapp || WHATSAPP;
+const saudacao = primeiro ? `Olá, ${primeiro}! ` : 'Olá! ';
 
 const todos = (await getImoveis()).filter((i) => i.finalidade === 'venda');
 const vitrine = todos
@@ -15,15 +22,18 @@ const vitrine = todos
 const semValor = todos.length - vitrine.length;
 const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
 ---
-<Base solidHeader
-  title="Qual imóvel cabe no seu bolso? | Calculadora VERO – Litoral de SC"
-  description="Informe a entrada, a parcela mensal e o reforço anual que você pode pagar e descubra quais imóveis no litoral de Santa Catarina cabem no seu bolso. Simulação gratuita.">
 <main>
   <div class="page-hero">
     <div class="container">
       <span class="eyebrow">Calculadora gratuita</span>
       <h1>Qual imóvel <span class="gold-text">cabe no seu bolso?</span></h1>
       <p>Responda 3 perguntas e descubra o seu poder de compra direto com a construtora e quais empreendimentos no litoral de SC cabem no seu orçamento.</p>
+      {corretor && (
+        <div class="calc-corretor">
+          <img src={corretor.foto?.src ?? '/img/equipe/sem-foto.svg'} alt={`Foto de ${corretor.nome}`} width="64" height="64">
+          <div><small>Simulação enviada por</small><b>{corretor.nome}</b><span>{corretor.cargo} · VERO{corretor.creci ? ` · CRECI ${corretor.creci}` : ''}</span></div>
+        </div>
+      )}
     </div>
   </div>
 
@@ -56,9 +66,10 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
           <div class="calc-ghost" aria-hidden="true"><span></span><span></span><span></span></div>
           <LeadForm origem="calculadora" variante="calculadora" id="calc-lead"
             titulo="Veja quais imóveis cabem no seu bolso"
-            sub="Libere a lista completa e a simulação. Um especialista da VERO pode tirar suas dúvidas pelo WhatsApp."
+            sub={primeiro ? `Libere a lista completa e a simulação. ${primeiro} pode tirar suas dúvidas pelo WhatsApp.` : 'Libere a lista completa e a simulação. Um especialista da VERO pode tirar suas dúvidas pelo WhatsApp.'}
             botao="Ver os imóveis"
-            sucesso="Pronto! Os imóveis estão logo abaixo. Um especialista da VERO pode falar com você pelo WhatsApp.">
+            sucesso={primeiro ? `Pronto! Os imóveis estão logo abaixo. ${primeiro} vai falar com você pelo WhatsApp.` : 'Pronto! Os imóveis estão logo abaixo. Um especialista da VERO pode falar com você pelo WhatsApp.'}>
+            {corretor && <input type="hidden" name="corretor" value={corretor.slug}>}
             <input type="hidden" name="calc_entrada">
             <input type="hidden" name="calc_parcela">
             <input type="hidden" name="calc_reforco">
@@ -74,7 +85,7 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
       <div data-cabem></div>
       <div data-quase></div>
       {semValor > 0 && <p class="calc-extra">Temos ainda <b>{semValor} empreendimento{semValor > 1 ? 's' : ''}</b> com valor sob consulta que podem caber na sua simulação.</p>}
-      <a class="btn btn-gold" data-wa target="_blank" rel="noopener" href="#">Falar com um especialista no WhatsApp</a>
+      <a class="btn btn-gold" data-wa target="_blank" rel="noopener" href="#">{primeiro ? `Falar com ${primeiro} no WhatsApp` : 'Falar com um especialista no WhatsApp'}</a>
     </div>
 
     <div class="container">
@@ -82,13 +93,14 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     </div>
   </section>
 </main>
-</Base>
 
-<script is:inline define:vars={{ vitrine }}>
+<script is:inline define:vars={{ vitrine, whatsDestino, saudacao, corretorRef: corretor ? { slug: corretor.slug, nome: corretor.nome } : null }}>
   window.__vitrine = vitrine;
+  window.__calc = { whatsDestino, saudacao };
+  // Link de corretor: lembra por 30 dias quem indicou (vale para qualquer formulário do site)
+  if (corretorRef) localStorage.setItem('vero_corretor', JSON.stringify({ ...corretorRef, em: Date.now() }));
 </script>
 <script>
-  import { WHATSAPP } from '../lib/content';
   type Item = { slug: string; nome: string; cidade: string; bairro: string; status: string; preco: string; valor: number; foto: string; fotoAlt: string };
   const vitrine: Item[] = (window as any).__vitrine ?? [];
   const QUASE = 1.15; // "quase lá": até 15% acima do poder de compra
@@ -169,8 +181,8 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     set('calc_poder', brl(poder));
     set('calc_imoveis', [...cabem.map((i) => i.nome), ...quase.map((i) => `${i.nome} (quase lá)`)].join(', ') || 'Nenhum na vitrine atual');
 
-    const msg = `Olá! Fiz a simulação na calculadora do site da VERO: entrada de ${brl(entrada)}, parcela de ${brl(parcela)}${reforco ? ` e reforço anual de ${brl(reforco)}` : ''} em ${prazo} meses (poder de compra de ${brl(poder)}). Quero ajuda para escolher um imóvel.`;
-    lista.querySelector<HTMLAnchorElement>('[data-wa]')!.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+    const msg = `${(window as any).__calc.saudacao}Fiz a simulação na calculadora do site da VERO: entrada de ${brl(entrada)}, parcela de ${brl(parcela)}${reforco ? ` e reforço anual de ${brl(reforco)}` : ''} em ${prazo} meses (poder de compra de ${brl(poder)}). Quero ajuda para escolher um imóvel.`;
+    lista.querySelector<HTMLAnchorElement>('[data-wa]')!.href = `https://wa.me/${(window as any).__calc.whatsDestino}?text=${encodeURIComponent(msg)}`;
 
     res.hidden = false;
     if (localStorage.getItem(LIBERADO)) {
@@ -190,6 +202,11 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
 </script>
 
 <style is:global>
+  .calc-corretor { display: flex; align-items: center; gap: 16px; margin-top: 28px; padding: 14px 22px 14px 14px; border: 1px solid var(--line); border-radius: 60px; width: fit-content; background: rgba(210,188,149,.06); }
+  .calc-corretor img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; object-position: top; }
+  .calc-corretor small { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+  .calc-corretor b { display: block; font-family: var(--serif); font-size: 22px; font-weight: 500; }
+  .calc-corretor span { font-size: 12px; color: var(--muted); }
   .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; }
   .calc-label { display: block; font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--gold-light); margin: 14px 0 8px; }
   .calc-label small { display: block; font-weight: 400; letter-spacing: 0; color: var(--muted); font-size: 12px; margin-top: 2px; }

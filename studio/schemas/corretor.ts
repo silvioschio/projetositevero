@@ -18,6 +18,8 @@ export const corretor = defineType({
     defineField({ name: 'especialidades', title: 'Especialidades', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' },
       description: 'Ex.: Lançamentos, Revenda, Locação, Porto Belo' }),
     defineField({ name: 'instagram', title: 'Instagram (sem @)', type: 'string' }),
+    defineField({ name: 'kommoNome', title: 'Nome no Kommo (se for diferente)', type: 'string',
+      description: 'Os leads que chegam pelo link deste corretor ficam no nome dele no Kommo. O site procura um usuário do Kommo com o mesmo nome; preencha só se lá o nome estiver escrito de outro jeito. Sem usuário no Kommo, o lead fica no nome padrão, com a etiqueta do corretor.' }),
     defineField({ name: 'ordem', title: 'Ordem no site', type: 'number', initialValue: 10, description: 'Menor número aparece primeiro.' }),
   ],
   orderings: [{ title: 'Ordem no site', name: 'ordem', by: [{ field: 'ordem', direction: 'asc' }] }],

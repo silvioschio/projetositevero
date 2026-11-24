@@ -79,4 +79,5 @@ export interface Corretor {
   descricao: string;      // 2 a 3 frases
   especialidades?: string[]; // ex.: ["Lançamentos", "Porto Belo"]
   instagram?: string;     // sem @
+  kommoNome?: string;     // nome do usuário no Kommo, se for diferente do nome no site
 }

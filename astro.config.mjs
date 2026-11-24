@@ -8,5 +8,5 @@ export default defineConfig({
   trailingSlash: 'always',
   output: 'static',            // páginas geradas estáticas (rápidas e ótimas para SEO)
   adapter: vercel(),           // necessário só para a rota /api/lead (envio ao Kommo)
-  integrations: [sitemap({ filter: (page) => !page.includes('/obrigado') })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/obrigado') && !page.includes('/links-corretores') && !/\/calculadora\/[^/]+\/$/.test(page) })],
 });

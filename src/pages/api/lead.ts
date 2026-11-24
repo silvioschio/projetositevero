@@ -48,8 +48,12 @@ export const POST: APIRoute = async ({ request }) => {
   const origem = ORIGENS[origemId] ?? (origemId.startsWith('imovel-') ? 'Página de imóvel' : origemId);
   const utm = (body.utm && typeof body.utm === 'object' ? body.utm : {}) as Record<string, string>;
 
+  // Corretor que enviou o link (confirmado no painel: o site não confia no nome vindo do navegador)
+  const corretor = await buscaCorretor(clean(body.corretor, 80));
+
   const detalhes: [string, string][] = [
     ['Origem', origem],
+    ['Corretor que indicou', corretor?.nome ?? ''],
     ['Imóvel', imovel],
     ['Planta', clean(body.planta)],
     ['Objetivo', clean(body.objetivo)],
@@ -95,7 +99,8 @@ export const POST: APIRoute = async ({ request }) => {
     name: `Site · ${imovel || origem} · ${nome}`,
     _embedded: {
       contacts: [contato],
-      tags: [{ name: 'Site' }, { name: origem }, ...(imovel ? [{ name: imovel }] : []), ...(utm.utm_source ? [{ name: `utm:${utm.utm_source}` }] : [])],
+      tags: [{ name: 'Site' }, { name: origem }, ...(imovel ? [{ name: imovel }] : []), ...(utm.utm_source ? [{ name: `utm:${utm.utm_source}` }] : []),
+        ...(corretor ? [{ name: `Indicação: ${corretor.nome}` }] : [])],
     },
   };
   const pipeline = Number(env('KOMMO_PIPELINE_ID'));
@@ -107,6 +112,8 @@ export const POST: APIRoute = async ({ request }) => {
     // Campos personalizados do lead (Data de Entrada, Fonte do Lead = Site). Se falhar, o lead segue sem eles.
     const campos = await camposPersonalizados(base, headers);
     if (campos.length) lead.custom_fields_values = campos;
+    const responsavel = corretor ? await usuarioKommo(base, headers, corretor.kommoNome || corretor.nome) : undefined;
+    if (responsavel) lead.responsible_user_id = responsavel;
 
     // 1º caminho: "Leads de entrada" (Incoming leads) do funil, via API de não-classificados.
     // Se o Kommo recusar, cai no 2º caminho (lead direto na 1ª etapa) para nunca perder o contato.
@@ -117,6 +124,7 @@ export const POST: APIRoute = async ({ request }) => {
       const pagina = clean(body.pagina, 500) || 'https://www.verosolucoesimobiliarias.com.br/';
       const leadSemEtapa: Record<string, unknown> = { name: lead.name, _embedded: { tags: (lead._embedded as any).tags } };
       if (campos.length) leadSemEtapa.custom_fields_values = campos;
+      if (responsavel) leadSemEtapa.responsible_user_id = responsavel;
       const entrada = {
         source_name: 'Site VERO',
         source_uid: `site-${origemId}-${agora}-${Math.random().toString(36).slice(2, 8)}`,
@@ -149,6 +157,12 @@ export const POST: APIRoute = async ({ request }) => {
       }
       const [criado] = (await res.json()) as { id: number; contact_id: number }[];
       leadId = criado?.id;
+    }
+
+    // Garante o corretor como responsável (o Kommo às vezes ignora o campo em "Leads de entrada")
+    if (leadId && responsavel) {
+      const r3 = await fetch(`${base}/leads/${leadId}`, { method: 'PATCH', headers, body: JSON.stringify({ responsible_user_id: responsavel }) });
+      if (!r3.ok) console.error('[lead] Não foi possível definir o corretor responsável', r3.status, await r3.text());
     }
 
     // Nota com todos os detalhes do formulário
@@ -205,6 +219,44 @@ async function camposPersonalizados(base: string, headers: Record<string, string
     console.error('[lead] Não foi possível ler os campos do Kommo', err);
   }
   return valores;
+}
+
+// ---- Corretor do link pessoal (/calculadora/<corretor>/), lido do painel Sanity ----
+async function buscaCorretor(slug: string): Promise<{ nome: string; kommoNome?: string } | null> {
+  const pid = env('SANITY_PROJECT_ID');
+  if (!slug || !pid || !/^[a-z0-9-]+$/.test(slug)) return null;
+  const ds = env('SANITY_DATASET') || 'production';
+  const q = encodeURIComponent('*[_type == "corretor" && slug.current == $slug && !(_id in path("drafts.**"))][0]{nome, kommoNome}');
+  try {
+    const r = await fetch(`https://${pid}.apicdn.sanity.io/v2025-01-01/data/query/${ds}?query=${q}&%24slug=${encodeURIComponent(JSON.stringify(slug))}`);
+    const d = (await r.json()) as any;
+    return d?.result?.nome ? d.result : null;
+  } catch (err) {
+    console.error('[lead] Não foi possível consultar o corretor no painel', err);
+    return null;
+  }
+}
+
+// ---- Usuário do Kommo pelo nome (para colocar o corretor como responsável) ----
+let cacheUsuarios: { em: number; lista: { id: number; name: string }[] } | null = null;
+async function usuarioKommo(base: string, headers: Record<string, string>, nome: string): Promise<number | undefined> {
+  try {
+    if (!cacheUsuarios || Date.now() - cacheUsuarios.em > 10 * 60 * 1000) {
+      const r = await fetch(`${base}/users?limit=250`, { headers });
+      if (!r.ok) throw new Error(`users ${r.status}`);
+      const d = (await r.json()) as any;
+      cacheUsuarios = { em: Date.now(), lista: d?._embedded?.users ?? [] };
+    }
+    const alvo = normaliza(nome);
+    const lista = cacheUsuarios.lista;
+    const achado = lista.find((u) => normaliza(u.name) === alvo)
+      ?? lista.find((u) => normaliza(u.name).split(' ')[0] === alvo.split(' ')[0] && lista.filter((x) => normaliza(x.name).split(' ')[0] === alvo.split(' ')[0]).length === 1);
+    if (!achado) console.error(`[lead] Corretor "${nome}" não encontrado entre os usuários do Kommo`);
+    return achado?.id;
+  } catch (err) {
+    console.error('[lead] Não foi possível ler os usuários do Kommo', err);
+    return undefined;
+  }
 }
 
 function json(data: unknown, status = 200) {

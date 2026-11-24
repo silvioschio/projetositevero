@@ -1,0 +1,82 @@
+---
+// Página interna (fora do Google e do menu): cada corretor pega aqui o link pessoal da calculadora.
+import Base from '../layouts/Base.astro';
+import { getEquipe } from '../lib/content';
+const equipe = await getEquipe();
+const link = (slug: string) => new URL(`/calculadora/${slug}/`, Astro.site).toString();
+const mensagem = (url: string) =>
+  `Você sabe qual imóvel cabe no seu bolso? 🏖️\n\nFiz uma calculadora rápida: você coloca a entrada, a parcela mensal e o reforço anual que consegue pagar e vê na hora quais empreendimentos no litoral de SC cabem no seu orçamento.\n\nFaça sua simulação grátis: ${url}`;
+---
+<Base solidHeader noindex title="Links da calculadora para corretores | VERO" description="Página interna da equipe VERO.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Área da equipe</span>
+      <h1>Seu link da <span class="gold-text">calculadora</span></h1>
+      <p>Envie o seu link para os seus contatos. Quem fizer a simulação por ele vira um lead <b>no seu nome</b> no Kommo, e o botão de WhatsApp da página leva o cliente direto para você.</p>
+    </div>
+  </div>
+  <section>
+    <div class="container links-grid">
+      {equipe.map((c) => {
+        const url = link(c.slug);
+        const msg = mensagem(url);
+        return (
+          <article class="links-card">
+            <div class="links-quem">
+              <img src={c.foto?.src ?? '/img/equipe/sem-foto.svg'} alt={`Foto de ${c.nome}`} width="56" height="56" loading="lazy">
+              <div><b>{c.nome}</b><span>{c.cargo}</span></div>
+            </div>
+            <input class="links-url" value={url} readonly aria-label={`Link de ${c.nome}`}>
+            <div class="links-acoes">
+              <button class="btn btn-gold" type="button" data-copiar={url}>Copiar link</button>
+              <a class="btn btn-outline" href={`https://wa.me/?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Enviar no WhatsApp</a>
+              <button class="btn btn-outline links-share" type="button" data-compartilhar={url} data-texto={msg} hidden>Compartilhar</button>
+            </div>
+            <details>
+              <summary>Ver mensagem sugerida</summary>
+              <p class="links-msg">{msg}</p>
+              <button class="links-copiar-msg" type="button" data-copiar={msg}>Copiar mensagem</button>
+            </details>
+            <a class="links-ver" href={`/calculadora/${c.slug}/`} target="_blank">Ver como o cliente vê →</a>
+          </article>
+        );
+      })}
+    </div>
+    <div class="container">
+      <p class="disclaimer">Corretor novo? Cadastre-o em "Corretor" no painel e publique: o link dele aparece aqui sozinho em cerca de 2 minutos. O lead fica no nome do corretor no Kommo quando o nome dele no Kommo é igual ao do painel (ou preencha "Nome no Kommo" no cadastro). O site lembra o corretor por 30 dias: se o cliente voltar depois e preencher qualquer formulário, o lead continua indo para quem indicou.</p>
+    </div>
+  </section>
+</main>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copiar]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(b.dataset.copiar!);
+      const t = b.textContent; b.textContent = 'Copiado ✓'; setTimeout(() => (b.textContent = t), 1800);
+    }));
+  if (navigator.share) {
+    document.querySelectorAll<HTMLButtonElement>('[data-compartilhar]').forEach((b) => {
+      b.hidden = false;
+      b.addEventListener('click', () => navigator.share({ text: b.dataset.texto }).catch(() => {}));
+    });
+  }
+</script>
+
+<style>
+  .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+  .links-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: 28px; display: grid; gap: 16px; }
+  .links-quem { display: flex; gap: 14px; align-items: center; }
+  .links-quem img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; object-position: top; }
+  .links-quem b { display: block; font-family: var(--serif); font-size: 22px; font-weight: 500; }
+  .links-quem span { font-size: 12px; color: var(--muted); }
+  .links-url { width: 100%; padding: 12px 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 6px; color: var(--gold-light); font-family: var(--sans); font-size: 13px; }
+  .links-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+  .links-acoes .btn { padding: 12px 18px; font-size: 11px; }
+  details summary { cursor: pointer; font-size: 13px; color: var(--gold); }
+  .links-msg { white-space: pre-line; font-size: 13px; color: var(--muted); margin: 12px 0; padding: 14px; border-left: 2px solid var(--gold); background: rgba(255,255,255,.03); }
+  .links-copiar-msg { background: none; border: 0; color: var(--gold-light); font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+  .links-ver { font-size: 12px; color: var(--muted); }
+  .links-ver:hover { color: var(--gold); }
+</style>

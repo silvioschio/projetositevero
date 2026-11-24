@@ -42,6 +42,13 @@ document.querySelectorAll<HTMLFormElement>('.lead-form form').forEach((form) => 
     data.pagina = location.href;
     data.utm = JSON.parse(sessionStorage.getItem('vero_utm') || '{}');
     data.referrer = sessionStorage.getItem('vero_ref');
+    // Veio pelo link de um corretor nos últimos 30 dias? O lead vai para ele.
+    if (!data.corretor) {
+      try {
+        const ref = JSON.parse(localStorage.getItem('vero_corretor') || 'null');
+        if (ref?.slug && Date.now() - ref.em < 30 * 24 * 60 * 60 * 1000) data.corretor = ref.slug;
+      } catch {}
+    }
 
     try {
       const res = await fetch('/api/lead/', {
