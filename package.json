@@ -15,5 +15,8 @@
     "@sanity/client": "^8.17.0",
     "@sanity/image-url": "^2.2.0",
     "astro": "^7.4.13"
+  },
+  "engines": {
+    "node": ">=22.23.4"
   }
 }
