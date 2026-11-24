@@ -48,7 +48,7 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
 
       <div class="calc-result" id="resultado" hidden>
         <span class="eyebrow">Seu poder de compra estimado</span>
-        <p class="calc-poder gold-text" data-poder></p>
+        <p class="calc-poder" data-poder></p>
         <ul class="calc-conta" data-conta></ul>
 
         <div class="calc-teaser" data-teaser>
@@ -197,7 +197,7 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
   .calc-erro { display: none; color: #e7a28f; font-size: 13px; }
   .calc-form.error .calc-erro { display: block; }
   .calc-result { scroll-margin-top: 110px; }
-  .calc-poder { font-family: var(--serif); font-size: clamp(36px, 4.6vw, 58px); line-height: 1.1; margin: 10px 0 18px; }
+  .calc-poder { font-family: var(--sans); font-weight: 600; font-size: clamp(32px, 4vw, 48px); line-height: 1.15; letter-spacing: -.01em; color: var(--gold-light); margin: 10px 0 18px; }
   .calc-conta { list-style: none; border-top: 1px solid var(--line); margin-bottom: 30px; }
   .calc-conta li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); }
   .calc-conta b { color: var(--white); font-weight: 600; white-space: nowrap; }
