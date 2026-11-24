@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Equipe from '../components/Equipe.astro';
+---
+<Base solidHeader
+  title="Sobre a VERO Soluções Imobiliárias | Investimento imobiliário em Porto Belo e Itapema"
+  description="A VERO ajuda famílias e investidores a construírem patrimônio imobiliário com segurança, previsibilidade e transparência no litoral norte de Santa Catarina.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Sobre a VERO</span>
+      <h1>Gestão especializada em <span class="gold-text">patrimônio imobiliário</span></h1>
+      <p>Ajudamos famílias e investidores a construírem patrimônio imobiliário com máxima segurança, previsibilidade e transparência.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="container split">
+      <div class="split-media"><img src="/img/sobre-familia.jpg" alt="Família observando o pôr do sol no litoral catarinense" width="700" height="875"></div>
+      <div>
+        <span class="eyebrow">Nossa missão</span>
+        <h2 class="section-title">Segurança familiar, <em>liberdade</em> e tempo de qualidade</h2>
+        <p class="section-lead">Investir em imóveis é uma das formas mais sólidas de construir patrimônio. Mas, para muita gente, existe uma barreira: a insegurança sobre o que comprar, onde e como.</p>
+        <p class="section-lead" style="margin-top:16px">A VERO nasceu para eliminar essa barreira. Atuamos em Porto Belo e Itapema, dois dos mercados que mais crescem no Brasil, com curadoria de empreendimentos, análise de números e acompanhamento em cada etapa.</p>
+        <p class="quote">Mais patrimônio. Mais liberdade. <em>Um futuro construído hoje.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="method">
+    <div class="container method-grid">
+      <div>
+        <span class="eyebrow">Como trabalhamos</span>
+        <h2 class="section-title">Método <em>VERO</em></h2>
+        <p class="section-lead">Quatro pilares que guiam cada recomendação que fazemos.</p>
+      </div>
+      <div class="method-list">
+        <div class="method-item"><span class="letter gold-text">V</span><div><h3>Validação Jurídica</h3><p>Due diligence completa: documentação, incorporação e histórico da construtora.</p></div></div>
+        <div class="method-item"><span class="letter gold-text">E</span><div><h3>Estratégia de Aquisição</h3><p>O imóvel certo para o seu objetivo, com a melhor condição de pagamento.</p></div></div>
+        <div class="method-item"><span class="letter gold-text">R</span><div><h3>Rigor Analítico</h3><p>Preço do m², potencial de valorização e projeção de rentabilidade.</p></div></div>
+        <div class="method-item"><span class="letter gold-text">O</span><div><h3>Operação Transparente</h3><p>Você acompanha cada etapa, da proposta à entrega das chaves.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <Equipe />
+
+  <section class="method">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Quem está à frente</span>
+        <h2 class="section-title">Silvio <em>Schio</em></h2>
+        <p class="section-lead">Corretor de imóveis (CRECI 70.345 F) especializado em investimento imobiliário em Porto Belo e Itapema. Compartilha conteúdo sobre o mercado com mais de 63 mil seguidores no Instagram <a href="https://www.instagram.com/silvio.schio/" target="_blank" rel="noopener" style="color:var(--gold)">@silvio.schio</a>.</p>
+      </div>
+      <LeadForm origem="diagnostico-sobre" variante="diagnostico" titulo="Converse com a VERO" botao="Quero conversar" />
+    </div>
+  </section>
+</main>
+</Base>

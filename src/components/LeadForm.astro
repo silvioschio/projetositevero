@@ -1,0 +1,110 @@
+---
+import { cidades } from '../lib/content';
+// Formulário de captação de leads. Envia para /api/lead, que cria o lead no Kommo.
+interface Props {
+  origem: string;            // identifica o formulário no Kommo (ex.: "imovel-bakers-bay")
+  variante: 'guia' | 'diagnostico' | 'imovel' | 'inquilino' | 'proprietario';
+  titulo: string;
+  sub?: string;
+  botao?: string;
+  sucesso?: string;
+  imovel?: string;
+  plantas?: string[];
+  id?: string;
+}
+const {
+  origem, variante, titulo, sub, botao = 'Enviar', imovel, plantas = [], id,
+  sucesso = 'Um especialista da VERO vai falar com você em breve.',
+} = Astro.props;
+---
+<div class="lead-form" id={id}>
+  <form data-origem={origem} novalidate>
+    <h3>{titulo}</h3>
+    {sub && <p class="sub">{sub}</p>}
+    {imovel && <input type="hidden" name="imovel" value={imovel}>}
+    <input class="hp" type="text" name="empresa" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div class="form-row"><input name="nome" placeholder="Seu nome" autocomplete="name" required></div>
+    <div class:list={['form-row', { two: variante !== 'imovel' }]}>
+      <input name="whatsapp" type="tel" placeholder="WhatsApp com DDD" autocomplete="tel" inputmode="tel" required>
+      {variante !== 'imovel' && <input name="email" type="email" placeholder="E-mail" autocomplete="email" required={variante === 'guia'}>}
+    </div>
+    {variante === 'imovel' && <div class="form-row"><input name="email" type="email" placeholder="E-mail" autocomplete="email"></div>}
+
+    {variante === 'guia' && (
+      <div class="form-row">
+        <select name="objetivo" required>
+          <option value="">Qual é o seu objetivo?</option>
+          <option>Investir para renda (aluguel)</option>
+          <option>Investir para valorização</option>
+          <option>Morar ou ter casa de praia</option>
+          <option>Ainda estou pesquisando</option>
+        </select>
+      </div>
+    )}
+
+    {variante === 'diagnostico' && (
+      <div class="form-row two">
+        <select name="interesse" required>
+          <option value="">Interesse</option>
+          <option>Comprar para investir</option>
+          <option>Comprar para morar</option>
+          <option>Alugar um imóvel</option>
+          <option>Colocar meu imóvel para alugar</option>
+        </select>
+        <select name="investimento">
+          <option value="">Valor de investimento</option>
+          <option>Até R$ 500 mil</option>
+          <option>R$ 500 mil a R$ 1 milhão</option>
+          <option>R$ 1 milhão a R$ 2 milhões</option>
+          <option>Acima de R$ 2 milhões</option>
+        </select>
+      </div>
+    )}
+
+    {variante === 'imovel' && plantas.length > 0 && (
+      <div class="form-row">
+        <select name="planta">
+          <option value="">Planta de interesse</option>
+          {plantas.map((p) => <option>{p}</option>)}
+          <option>Ainda não sei</option>
+        </select>
+      </div>
+    )}
+
+    {variante === 'inquilino' && (
+      <div class="form-row two">
+        <select name="cidade" required>
+          <option value="">Cidade</option>{cidades.map((c) => <option>{c.nome}</option>)}<option>Tanto faz</option>
+        </select>
+        <select name="periodo" required>
+          <option value="">Tipo de locação</option><option>Anual</option><option>Temporada</option>
+        </select>
+      </div>
+    )}
+
+    {variante === 'proprietario' && (
+      <div class="form-row two">
+        <select name="cidade" required>
+          <option value="">Cidade do imóvel</option>{cidades.map((c) => <option>{c.nome}</option>)}<option>Outra</option>
+        </select>
+        <select name="periodo">
+          <option value="">Tipo de locação</option><option>Anual</option><option>Temporada</option><option>Quero orientação</option>
+        </select>
+      </div>
+    )}
+
+    {(variante === 'inquilino' || variante === 'proprietario') && (
+      <div class="form-row"><textarea name="mensagem" rows="3" placeholder={variante === 'inquilino' ? 'O que você procura? (quartos, período, orçamento)' : 'Conte um pouco sobre o imóvel (endereço, quartos, mobiliado?)'}></textarea></div>
+    )}
+
+    <label class="consent"><input type="checkbox" name="consentimento" required> <span>Concordo em receber contato da VERO e com a <a href="/politica-de-privacidade/" target="_blank" style="text-decoration:underline">Política de Privacidade</a>.</span></label>
+    <button class="btn btn-gold btn-block" type="submit">{botao}</button>
+    <p class="form-error">Não foi possível enviar. Confira os campos ou fale com a gente pelo WhatsApp.</p>
+  </form>
+  <div class="form-success" role="status">
+    <div class="icon">✓</div>
+    <h3>Recebemos seu contato!</h3>
+    <p class="sub">{sucesso}</p>
+  </div>
+</div>

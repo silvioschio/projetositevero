@@ -1,0 +1,107 @@
+import { defineType, defineField, defineArrayMember } from 'sanity';
+
+export const imovel = defineType({
+  name: 'imovel',
+  title: 'Imóvel',
+  type: 'document',
+  groups: [
+    { name: 'principal', title: 'Principal', default: true },
+    { name: 'detalhes', title: 'Detalhes' },
+    { name: 'fotos', title: 'Fotos' },
+    { name: 'local', title: 'Localização' },
+    { name: 'revenda', title: 'Revenda' },
+  ],
+  fields: [
+    defineField({ name: 'nome', title: 'Nome do empreendimento', type: 'string', group: 'principal', validation: (r) => r.required() }),
+    defineField({
+      name: 'slug', title: 'Endereço da página (URL)', type: 'slug', group: 'principal',
+      description: 'Clique em "Generate". Ex.: bakers-bay-porto-belo (inclua a cidade, ajuda no Google).',
+      options: { source: (doc: any) => `${doc.nome ?? ''} ${doc.cidade ?? ''}`, maxLength: 80 },
+      validation: (r) => r.required(),
+    }),
+    defineField({ name: 'finalidade', title: 'Finalidade', type: 'string', group: 'principal', initialValue: 'venda',
+      options: { list: [{ title: 'Venda', value: 'venda' }, { title: 'Locação', value: 'locacao' }], layout: 'radio', direction: 'horizontal' }, validation: (r) => r.required() }),
+    defineField({ name: 'status', title: 'Estágio', type: 'string', group: 'principal', initialValue: 'Lançamento',
+      options: { list: ['Pré-lançamento', 'Lançamento', 'Em obras', 'Pronto para morar'] }, validation: (r) => r.required() }),
+    defineField({ name: 'tipo', title: 'Tipo', type: 'string', group: 'principal', initialValue: 'Apartamento',
+      options: { list: ['Apartamento', 'Cobertura', 'Studio', 'Casa', 'Sala comercial'] }, validation: (r) => r.required() }),
+    defineField({ name: 'destaque', title: 'Mostrar em destaque na página inicial?', type: 'boolean', group: 'principal', initialValue: false }),
+    defineField({ name: 'preco', title: 'Preço (texto)', type: 'string', group: 'principal', initialValue: 'Sob consulta',
+      description: 'Ex.: "Sob consulta" ou "A partir de R$ 890 mil".' }),
+    defineField({ name: 'resumo', title: 'Resumo (1–2 frases)', type: 'text', rows: 3, group: 'principal',
+      description: 'Aparece nos cards e no Google. Ideal: até 160 caracteres, com cidade e principais diferenciais.',
+      validation: (r) => r.required().max(220) }),
+    defineField({ name: 'descricao', title: 'Descrição completa', type: 'text', rows: 8, group: 'principal',
+      description: 'Separe os parágrafos com uma linha em branco.' }),
+    defineField({ name: 'tags', title: 'Etiquetas', type: 'array', of: [{ type: 'string' }], group: 'principal',
+      options: { layout: 'tags' }, description: 'Ex.: Alto padrão, Ideal para renda, Frente mar.' }),
+
+    defineField({ name: 'construtora', title: 'Construtora / incorporadora', type: 'string', group: 'detalhes' }),
+    defineField({ name: 'diferenciais', title: 'Diferenciais', type: 'array', of: [{ type: 'string' }], group: 'detalhes' }),
+    defineField({ name: 'areaMin', title: 'Área privativa mínima (m²)', type: 'number', group: 'detalhes' }),
+    defineField({ name: 'areaMax', title: 'Área privativa máxima (m²)', type: 'number', group: 'detalhes' }),
+    defineField({ name: 'suitesMin', title: 'Suítes (mínimo)', type: 'number', group: 'detalhes' }),
+    defineField({ name: 'suitesMax', title: 'Suítes (máximo)', type: 'number', group: 'detalhes' }),
+    defineField({ name: 'entrega', title: 'Previsão de entrega', type: 'string', group: 'detalhes', description: 'Ex.: dez/2030' }),
+    defineField({ name: 'areaLazer', title: 'Área de lazer', type: 'string', group: 'detalhes', description: 'Ex.: +1.200 m²' }),
+    defineField({
+      name: 'plantas', title: 'Plantas', type: 'array', group: 'detalhes',
+      of: [defineArrayMember({
+        type: 'object', name: 'planta',
+        fields: [
+          defineField({ name: 'nome', title: 'Nome', type: 'string', description: 'Ex.: Tipo 2' }),
+          defineField({ name: 'area', title: 'Área', type: 'string', description: 'Ex.: 126,01 m²' }),
+          defineField({ name: 'suites', title: 'Suítes', type: 'string', description: 'Ex.: 3 suítes' }),
+        ],
+        preview: { select: { title: 'nome', subtitle: 'area' } },
+      })],
+    }),
+    defineField({ name: 'lazer', title: 'Lazer e comodidades', type: 'array', of: [{ type: 'string' }], group: 'detalhes', options: { layout: 'tags' } }),
+
+    defineField({
+      name: 'fotos', title: 'Fotos', type: 'array', group: 'fotos',
+      description: 'A primeira foto é a capa. Arraste para reordenar. Use imagens horizontais de boa qualidade.',
+      of: [defineArrayMember({
+        type: 'image', options: { hotspot: true },
+        fields: [defineField({ name: 'alt', title: 'Descrição da foto (para Google e acessibilidade)', type: 'string' })],
+      })],
+      validation: (r) => r.min(1).error('Adicione pelo menos uma foto'),
+    }),
+
+    defineField({ name: 'cidade', title: 'Cidade', type: 'string', group: 'local', options: { list: ['Porto Belo', 'Itapema', 'Bombinhas', 'Tijucas', 'Florianópolis', 'Balneário Piçarras', 'Penha', 'Barra Velha'] }, validation: (r) => r.required() }),
+    defineField({ name: 'bairro', title: 'Bairro', type: 'string', group: 'local' }),
+    defineField({ name: 'endereco', title: 'Endereço', type: 'string', group: 'local' }),
+    defineField({ name: 'distanciaPraia', title: 'Distância da praia', type: 'string', group: 'local', description: 'Ex.: 200 m' }),
+    defineField({
+      name: 'proximidades', title: 'Proximidades', type: 'array', group: 'local',
+      of: [defineArrayMember({
+        type: 'object', name: 'proximidade',
+        fields: [
+          defineField({ name: 'local', title: 'Local', type: 'string' }),
+          defineField({ name: 'distancia', title: 'Distância/tempo', type: 'string', description: 'Ex.: 5 min' }),
+        ],
+        preview: { select: { title: 'local', subtitle: 'distancia' } },
+      })],
+    }),
+
+    defineField({ name: 'revenda', title: 'É uma revenda (unidade de terceiro)?', type: 'boolean', group: 'revenda', initialValue: false }),
+    defineField({ name: 'empreendimentoSlug', title: 'Página do empreendimento (URL)', type: 'string', group: 'revenda',
+      description: 'Opcional. Ex.: florence-residenciale-porto-belo — cria o link "Conheça o empreendimento".', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'torre', title: 'Torre', type: 'string', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'andar', title: 'Andar', type: 'string', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'posicao', title: 'Posição / vista', type: 'string', group: 'revenda', description: 'Ex.: Frente mar, vista lateral', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'vagas', title: 'Vagas de garagem', type: 'number', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'mobiliado', title: 'Mobiliado?', type: 'string', group: 'revenda', options: { list: ['Sim', 'Não', 'Semimobiliado'] }, hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'condominio', title: 'Condomínio', type: 'string', group: 'revenda', description: 'Ex.: R$ 1.200/mês', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'iptu', title: 'IPTU', type: 'string', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'precoTabela', title: 'Preço de tabela da construtora', type: 'string', group: 'revenda',
+      description: 'Opcional. Ex.: R$ 1.390.000,00 — o site calcula e mostra a economia.', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'condicoes', title: 'Condições de pagamento', type: 'array', of: [{ type: 'string' }], group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'aceitaFinanciamento', title: 'Aceita financiamento?', type: 'boolean', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+    defineField({ name: 'aceitaPermuta', title: 'Aceita permuta?', type: 'boolean', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+  ],
+  preview: {
+    select: { title: 'nome', cidade: 'cidade', status: 'status', media: 'fotos.0' },
+    prepare: ({ title, cidade, status, media }) => ({ title, subtitle: [cidade, status].filter(Boolean).join(' · '), media }),
+  },
+});

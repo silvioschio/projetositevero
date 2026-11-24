@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import Listing from '../../components/Listing.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { getImoveis, cidades, linkCidade } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const todos = await getImoveis();
+  return cidades
+    .filter((c) => c.principal || todos.some((i) => i.finalidade === 'venda' && i.cidade === c.nome))
+    .map((c) => ({ params: { cidade: c.slug }, props: { cidade: c } }));
+}
+const { cidade } = Astro.props;
+const todos = await getImoveis();
+const imoveis = todos.filter((i) => i.finalidade === 'venda' && i.cidade === cidade.nome);
+const comPagina = cidades.filter((c) => c.principal || todos.some((i) => i.finalidade === 'venda' && i.cidade === c.nome));
+---
+<Base solidHeader
+  title={`Imóveis à venda em ${cidade.nome} – SC | Apartamentos e lançamentos | VERO`}
+  description={`Apartamentos à venda e lançamentos em ${cidade.nome}, Santa Catarina. Imóveis selecionados para investir ou morar, com assessoria completa da VERO.`}
+  jsonLd={{
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'Imóveis', item: new URL('/imoveis/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 3, name: cidade.nome, item: new URL(`/imoveis/${cidade.slug}/`, Astro.site).toString() },
+    ],
+  }}>
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Imóveis em {cidade.nome}</span>
+      <h1>Apartamentos à venda em <span class="gold-text">{cidade.nome}</span></h1>
+      <p>{cidade.descricao}</p>
+      <div class="city-links">
+        <a class="chip" href="/imoveis/">Todos</a>
+        {cidades.map((c) => <a class:list={['chip', { active: c.slug === cidade.slug }]} href={linkCidade(c, comPagina)}>{c.nome}</a>)}
+      </div>
+    </div>
+  </div>
+  <section style="padding-top:60px">
+    <div class="container"><Listing imoveis={imoveis} cidadeFixa={cidade.nome} /></div>
+  </section>
+  <section class="method" id="contato">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Investir em {cidade.nome}</span>
+        <h2 class="section-title">Receba as melhores oportunidades em <em>{cidade.nome}</em></h2>
+        <p class="section-lead">Envie seu contato e receba lançamentos, condições especiais e uma análise do mercado de {cidade.nome}.</p>
+      </div>
+      <LeadForm origem={`cidade-${cidade.slug}`} variante="diagnostico" titulo={`Oportunidades em ${cidade.nome}`} botao="Quero receber" />
+    </div>
+  </section>
+</main>
+</Base>

@@ -1,0 +1,191 @@
+---
+import Base from '../../layouts/Base.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import { getImoveis, faixa, slugCidade, economia } from '../../lib/content';
+import type { Imovel } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const todos = await getImoveis();
+  return todos.map((imovel) => ({ params: { slug: imovel.slug }, props: { imovel, todos } }));
+}
+const { imovel: i, todos } = Astro.props as { imovel: Imovel; todos: Imovel[] };
+
+const local = [i.bairro, i.cidade].filter(Boolean).join(' · ');
+const enderecoCompleto = [i.endereco, i.bairro, `${i.cidade} – SC`].filter(Boolean).join(' · ');
+const suites = i.suitesMin ? faixa(i.suitesMin, i.suitesMax) : '';
+const empreendimento = i.empreendimentoSlug ? todos.find((o) => o.slug === i.empreendimentoSlug) : undefined;
+const fatos = [
+  i.areaMin && { v: faixa(i.areaMin, i.areaMax).replace(' a ', '–'), l: 'm² privativos' },
+  i.vagas && { v: String(i.vagas), l: i.vagas > 1 ? 'vagas' : 'vaga' },
+  i.andar && { v: i.andar, l: 'andar' },
+  suites && { v: suites, l: (i.suitesMax ?? i.suitesMin)! > 1 ? 'suítes' : 'suíte' },
+  i.distanciaPraia && { v: i.distanciaPraia, l: 'da praia' },
+  i.areaLazer && { v: i.areaLazer.replace(' m²', ''), l: 'm² de lazer' },
+  i.entrega && { v: i.entrega, l: 'entrega' },
+].filter(Boolean).slice(0, 4) as { v: string; l: string }[];
+
+const fotosGaleria = i.fotos.slice(0, 5);
+const restantes = i.fotos.length - fotosGaleria.length;
+const opcoesPlanta = (i.plantas ?? []).map((p) => `${p.suites} · ${p.area}`);
+const eco = economia(i.preco, i.precoTabela);
+const valores = i.revenda ? ([
+  ['Valor de venda', i.preco ?? 'Sob consulta'],
+  ['Preço de tabela da construtora', i.precoTabela],
+  ['Economia', eco ? `${eco.valor} (${eco.pct})` : undefined],
+  ['Torre', i.torre], ['Andar', i.andar], ['Posição', i.posicao],
+  ['Vagas de garagem', i.vagas ? String(i.vagas) : undefined], ['Mobiliado', i.mobiliado],
+  ['Condomínio', i.condominio], ['IPTU', i.iptu],
+  ['Aceita financiamento', i.aceitaFinanciamento === undefined ? undefined : i.aceitaFinanciamento ? 'Sim' : 'Não'],
+  ['Aceita permuta', i.aceitaPermuta === undefined ? undefined : i.aceitaPermuta ? 'Sim' : 'Não'],
+].filter(([, v]) => v) as [string, string][]) : [];
+const semelhantes = todos.filter((o) => o.slug !== i.slug && o.finalidade === i.finalidade)
+  .sort((a, b) => Number(b.cidade === i.cidade) - Number(a.cidade === i.cidade)).slice(0, 3);
+
+const titulo = `${i.nome} | ${i.tipo === 'Apartamento' ? 'Apartamentos' : i.tipo} à venda ${i.bairro ? `no ${i.bairro}, ` : 'em '}${i.cidade} – SC`;
+const mapQuery = encodeURIComponent([i.endereco, i.bairro, i.cidade, 'SC'].filter(Boolean).join(', '));
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ApartmentComplex',
+    name: i.nome,
+    description: i.resumo,
+    url: new URL(`/imovel/${i.slug}/`, Astro.site).toString(),
+    image: i.fotos.map((f) => new URL(f.src, Astro.site).toString()),
+    address: { '@type': 'PostalAddress', streetAddress: i.endereco, addressLocality: i.cidade, addressRegion: 'SC', addressCountry: 'BR' },
+    ...(i.lazer?.length ? { amenityFeature: i.lazer.map((name) => ({ '@type': 'LocationFeatureSpecification', name, value: true })) } : {}),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'Imóveis', item: new URL('/imoveis/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 3, name: i.cidade, item: new URL(`/imoveis/${slugCidade(i.cidade)}/`, Astro.site).toString() },
+      { '@type': 'ListItem', position: 4, name: i.nome },
+    ],
+  },
+];
+---
+<Base solidHeader title={`${titulo} | VERO`} description={i.resumo} image={i.fotos[0]?.src} jsonLd={jsonLd}
+  whatsMsg={`Olá! Vim pelo site da VERO e tenho interesse no ${i.nome}.`}>
+<main class="container">
+  <nav class="breadcrumb" aria-label="Você está em">
+    <a href="/">Início</a><span>/</span><a href="/imoveis/">Imóveis</a><span>/</span><a href={`/imoveis/${slugCidade(i.cidade)}/`}>{i.cidade}</a><span>/</span>{i.nome}
+  </nav>
+
+  <div class="prop-head">
+    <div>
+      <span class="eyebrow">{i.revenda && 'Revenda · '}{i.status}{i.entrega && ` · Entrega ${i.entrega}`}</span>
+      <h1>{i.nome}</h1>
+      <p class="addr">{enderecoCompleto}{i.construtora && ` · ${i.construtora}`}</p>
+      {i.tags && i.tags.filter((t) => t !== 'Revenda').length > 0 && (
+        <div class="city-links" style="margin-top:14px">{i.tags.filter((t) => t !== 'Revenda').map((t) => <span class="chip">{t}</span>)}</div>
+      )}
+    </div>
+    <div class="prop-price">
+      <small>{i.revenda ? 'Valor da revenda' : 'Valores'}</small>
+      <strong class="gold-text">{i.preco ?? 'Sob consulta'}</strong>
+      {eco && <span class="price-compare">Tabela da construtora: <s>{i.precoTabela}</s><br><b>Economia de {eco.valor} ({eco.pct})</b></span>}
+    </div>
+  </div>
+
+  <div class="gallery" data-gallery={JSON.stringify(i.fotos)}
+       style={fotosGaleria.length < 5 ? 'grid-template-columns:1fr;grid-template-rows:520px' : ''}>
+    {(fotosGaleria.length < 5 ? fotosGaleria.slice(0, 1) : fotosGaleria).map((f, n) => (
+      <a href={f.src}>
+        <img src={f.src} alt={f.alt} loading={n === 0 ? 'eager' : 'lazy'}>
+        {n === 4 && restantes > 0 && <span class="more-photos">+ {restantes} fotos</span>}
+      </a>
+    ))}
+  </div>
+
+  <div class="prop-layout">
+    <div>
+      {fatos.length > 0 && (
+        <div class="key-facts" style={`grid-template-columns:repeat(${fatos.length},1fr)`}>
+          {fatos.map((f) => <div class="fact"><strong>{f.v}</strong><span>{f.l}</span></div>)}
+        </div>
+      )}
+
+      <div class="prop-block">
+        <h2>Sobre o empreendimento</h2>
+        {i.descricao.map((p) => <p>{p}</p>)}
+      </div>
+
+      {i.revenda && (
+        <div class="prop-block">
+          <h2>Valores e condições</h2>
+          <table class="units"><tbody>
+            {valores.map(([k, v]) => <tr><td>{k}</td><td style="text-align:right;color:var(--gold-light)">{v}</td></tr>)}
+          </tbody></table>
+          {i.condicoes && i.condicoes.length > 0 && <>
+            <h3 style="font-family:var(--serif);font-weight:500;font-size:22px;margin:30px 0 4px">Condições de pagamento</h3>
+            <ul class="check-list" style="margin-top:16px">{i.condicoes.map((c) => <li>{c}</li>)}</ul>
+            <p class="disclaimer" style="margin-top:10px">Valores de referência, sujeitos a confirmação no momento da negociação. Saldo corrigido pelo CUB/SC conforme contrato com a construtora.</p>
+          </>}
+          {empreendimento && <p style="margin-top:20px"><a href={`/imovel/${empreendimento.slug}/`} style="color:var(--gold);text-decoration:underline">Conheça todos os detalhes do {empreendimento.nome} →</a></p>}
+        </div>
+      )}
+
+      {i.plantas && i.plantas.length > 0 && (
+        <div class="prop-block">
+          <h2>Plantas disponíveis</h2>
+          <table class="units">
+            <thead><tr><th>Planta</th><th>Área privativa</th><th>Suítes</th><th></th></tr></thead>
+            <tbody>
+              {i.plantas.map((p) => <tr><td>{p.nome}</td><td>{p.area}</td><td>{p.suites}</td><td><a href="#interesse">Receber planta</a></td></tr>)}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {i.lazer && i.lazer.length > 0 && (
+        <div class="prop-block">
+          <h2>Lazer e comodidades</h2>
+          <ul class="amenities">{i.lazer.map((l) => <li>{l}</li>)}</ul>
+        </div>
+      )}
+
+      {i.diferenciais && i.diferenciais.length > 0 && (
+        <div class="prop-block">
+          <h2>Diferenciais</h2>
+          <ul class="check-list">{i.diferenciais.map((d) => <li>{d}</li>)}</ul>
+        </div>
+      )}
+
+      <div class="prop-block">
+        <h2>Localização</h2>
+        {i.proximidades && i.proximidades.length > 0 && (
+          <ul class="nearby">{i.proximidades.map((p) => <li>{p.local} <b>{p.distancia}</b></li>)}</ul>
+        )}
+        <div class="map"><iframe title={`Mapa de ${i.nome}`} loading="lazy" src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}></iframe></div>
+      </div>
+
+      <div class="invest-box">
+        <h3>Vale a pena investir no {i.nome}?</h3>
+        <p>Receba uma análise do Método VERO com projeção de valorização, estimativa de renda com aluguel por temporada e condições de pagamento atualizadas.</p>
+        <a href="#interesse" class="btn btn-gold">Quero a análise de investimento</a>
+      </div>
+
+      <p class="disclaimer">Imagens meramente ilustrativas. Informações sujeitas a alteração pela incorporadora. Venda somente a partir do registro de incorporação, nos termos da Lei Federal nº 4.591/64.</p>
+    </div>
+
+    <aside class="prop-sticky">
+      <LeadForm id="interesse" origem={`imovel-${i.slug}`} variante="imovel" imovel={i.nome} plantas={opcoesPlanta}
+        titulo={i.revenda ? 'Tenho interesse nesta unidade' : i.status === 'Pré-lançamento' ? 'Receba a tabela em primeira mão' : 'Receba tabela de preços e plantas'}
+        sub={i.revenda ? 'Receba a planta, os detalhes da negociação e agende uma conversa.' : i.status === 'Pré-lançamento' ? 'Cadastre-se e seja avisado antes da abertura das vendas, com as melhores unidades disponíveis.' : 'Enviamos valores, disponibilidade e condições de pagamento.'}
+        botao={i.revenda ? 'Quero saber mais' : i.status === 'Pré-lançamento' ? 'Quero ser avisado' : 'Receber informações'}
+        sucesso={i.revenda ? 'Um especialista da VERO vai falar com você em breve sobre esta unidade.' : `Em breve você recebe a tabela e as plantas do ${i.nome}.`} />
+    </aside>
+  </div>
+
+  {semelhantes.length > 0 && (
+    <section style="padding: 0 0 110px;">
+      <span class="eyebrow">Você também pode gostar</span>
+      <h2 class="section-title">Outros imóveis em <em>{i.cidade}</em></h2>
+      <div class="cards" style="margin-top: 30px;">{semelhantes.map((o) => <PropertyCard imovel={o} />)}</div>
+    </section>
+  )}
+</main>
+</Base>

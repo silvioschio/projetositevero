@@ -1,0 +1,23 @@
+---
+import TeamCard from './TeamCard.astro';
+import { getEquipe } from '../lib/content';
+interface Props { titulo?: boolean; classe?: string }
+const { titulo = true, classe = '' } = Astro.props;
+const equipe = await getEquipe();
+---
+{equipe.length > 0 && (
+  <section id="equipe" class={classe}>
+    <div class="container">
+      {titulo && (
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Nossa equipe</span>
+            <h2 class="section-title">Fale direto com um <em>especialista</em></h2>
+            <p class="section-lead">Corretores que conhecem cada empreendimento de perto. Escolha com quem quer conversar e chame no WhatsApp.</p>
+          </div>
+        </div>
+      )}
+      <div class="team-grid">{equipe.map((c) => <TeamCard corretor={c} />)}</div>
+    </div>
+  </section>
+)}

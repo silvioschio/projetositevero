@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base solidHeader title="Página não encontrada | VERO" description="A página que você procura não existe." noindex>
+<main>
+  <div class="page-hero" style="min-height:70vh;display:flex;align-items:center">
+    <div class="container">
+      <span class="eyebrow">Erro 404</span>
+      <h1>Página <span class="gold-text">não encontrada</span></h1>
+      <p>O endereço pode ter mudado. Que tal ver nossos imóveis?</p>
+      <div style="display:flex;gap:12px;margin-top:30px;flex-wrap:wrap">
+        <a class="btn btn-gold" href="/imoveis/">Ver imóveis</a>
+        <a class="btn btn-outline" href="/">Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+</main>
+</Base>

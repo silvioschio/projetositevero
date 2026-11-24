@@ -1,0 +1,14 @@
+---
+import type { Post } from '../lib/types';
+interface Props { post: Post }
+const { post: p } = Astro.props;
+---
+<a class="card post-card" href={`/blog/${p.slug}/`}>
+  <div class="card-media"><img src={p.imagem.src} alt={p.imagem.alt} loading="lazy" width="600" height="375"></div>
+  <div class="card-body">
+    <span class="tag">{p.categoria}</span>
+    <h3>{p.titulo}</h3>
+    <p>{p.resumo}</p>
+    <span class="card-foot"><span class="more">Ler artigo →</span></span>
+  </div>
+</a>

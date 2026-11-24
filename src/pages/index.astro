@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import PostCard from '../components/PostCard.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Equipe from '../components/Equipe.astro';
+import { getImoveis, getPosts, cidades } from '../lib/content';
+
+const imoveis = (await getImoveis()).filter((i) => i.finalidade === 'venda');
+const destaques = (imoveis.filter((i) => i.destaque).length ? imoveis.filter((i) => i.destaque) : imoveis).slice(0, 4);
+const posts = (await getPosts()).slice(0, 3);
+---
+<Base
+  title="VERO Soluções Imobiliárias | Imóveis para investir em Porto Belo e Itapema – SC"
+  description="Apartamentos à venda e para locação em Porto Belo e Itapema, no litoral norte de Santa Catarina. Investimento imobiliário com segurança jurídica, análise e transparência: o Método VERO."
+>
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <span class="eyebrow">Porto Belo · Itapema · Litoral Norte de SC</span>
+        <h1>Imóveis para <span class="gold-text">investir e viver</span> no litoral catarinense.</h1>
+        <p>Construímos patrimônio imobiliário com segurança, previsibilidade e transparência, do primeiro contato à entrega das chaves.</p>
+
+        <form class="search" action="/imoveis/" method="get" role="search">
+          <input type="hidden" name="status" value="">
+          <div class="search-tabs">
+            <button type="button" class="search-tab active" data-action="/imoveis/">Comprar</button>
+            <button type="button" class="search-tab" data-action="/locacao/">Alugar</button>
+            <button type="button" class="search-tab" data-action="/imoveis/" data-status="Lançamento">Lançamentos</button>
+          </div>
+          <div class="search-fields">
+            <div class="field">
+              <label for="cidade">Cidade</label>
+              <select id="cidade" name="cidade"><option value="">Todas</option>{cidades.map((c) => <option>{c.nome}</option>)}</select>
+            </div>
+            <div class="field">
+              <label for="tipo">Tipo</label>
+              <select id="tipo" name="tipo"><option value="">Todos</option><option>Apartamento</option><option>Cobertura</option><option>Studio</option><option>Casa</option></select>
+            </div>
+            <div class="field">
+              <label for="suites">Suítes</label>
+              <select id="suites" name="suites"><option value="">Qualquer</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option></select>
+            </div>
+            <button class="btn btn-gold" type="submit">Buscar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="container stats-grid">
+      <div class="stat"><strong class="gold-text">R$ 7,9 bi</strong><span>em vendas de imóveis novos<br>em Itapema e Porto Belo (2025)</span></div>
+      <div class="stat"><strong class="gold-text">4</strong><span>pilares do<br>Método VERO</span></div>
+      <div class="stat"><strong class="gold-text">63,9 mil</strong><span>seguidores acompanham<br>nosso conteúdo</span></div>
+      <div class="stat"><strong class="gold-text">2</strong><span>cidades de especialidade:<br>Porto Belo e Itapema</span></div>
+    </div>
+  </div>
+
+  <section id="imoveis">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Seleção VERO</span>
+          <h2 class="section-title">Imóveis em <em>destaque</em></h2>
+          <p class="section-lead">Empreendimentos escolhidos a dedo pelo potencial de valorização, localização e solidez da construtora.</p>
+        </div>
+        <a href="/imoveis/" class="btn btn-outline">Ver todos os imóveis</a>
+      </div>
+      <div class="cards">{destaques.map((i) => <PropertyCard imovel={i} />)}</div>
+    </div>
+  </section>
+
+  <section id="metodo" class="method">
+    <div class="container method-grid">
+      <div>
+        <span class="eyebrow">Como trabalhamos</span>
+        <h2 class="section-title">Método <em>VERO</em></h2>
+        <p class="section-lead">A barreira para investir em imóveis é a insegurança. Nosso método existe para eliminá-la, com um processo claro em quatro etapas.</p>
+        <div class="divider"></div>
+        <a href="#contato" class="btn btn-gold">Fazer meu diagnóstico</a>
+      </div>
+      <div class="method-list">
+        <div class="method-item"><span class="letter gold-text">V</span><div><h3>Validação Jurídica</h3><p>Due diligence completa: documentação, incorporação e histórico da construtora antes de qualquer recomendação.</p></div></div>
+        <div class="method-item"><span class="letter gold-text">E</span><div><h3>Estratégia de Aquisição</h3><p>O imóvel certo para o seu objetivo: renda com aluguel, valorização ou moradia, com a melhor condição de pagamento.</p></div></div>
+        <div class="method-item"><span class="letter gold-text">R</span><div><h3>Rigor Analítico</h3><p>Números antes de emoção: preço do m², potencial de valorização e projeção de rentabilidade.</p></div></div>
+        <div class="method-item"><span class="letter gold-text">O</span><div><h3>Operação Transparente</h3><p>Você acompanha cada etapa, da proposta à entrega das chaves, sem surpresas.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="locacao" class="rent">
+    <div class="container">
+      <span class="eyebrow">Locação</span>
+      <h2 class="section-title">Alugue ou coloque seu imóvel <em>para render</em></h2>
+      <p class="section-lead">Locação anual e por temporada em Porto Belo e Itapema, com atendimento próximo e gestão profissional.</p>
+      <div class="rent-grid">
+        <div class="rent-card">
+          <span class="eyebrow">Para quem procura</span>
+          <h3>Quero alugar um imóvel</h3>
+          <p>Conte o que você procura (cidade, período, número de quartos) e enviamos as opções disponíveis.</p>
+          <a href="/locacao/#inquilino" class="btn btn-outline">Encontrar imóvel para alugar</a>
+        </div>
+        <div class="rent-card">
+          <span class="eyebrow">Para proprietários</span>
+          <h3>Quero alugar meu imóvel</h3>
+          <p>Avaliamos seu imóvel e indicamos a melhor estratégia (anual ou temporada) para maximizar seu retorno.</p>
+          <a href="/locacao/#proprietario" class="btn btn-gold">Avaliar meu imóvel</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="magnet">
+    <div class="container magnet-inner">
+      <div>
+        <span class="eyebrow">Material gratuito</span>
+        <h2 class="section-title">Guia: como investir em imóveis no <em>litoral norte de SC</em></h2>
+        <p class="section-lead">Os números do mercado, as regiões que mais valorizam e os erros mais comuns de quem compra na planta. Receba o guia no seu WhatsApp e e-mail.</p>
+        <ul class="check-list">
+          <li>Porto Belo x Itapema: onde está a melhor oportunidade</li>
+          <li>Como calcular a rentabilidade do aluguel por temporada</li>
+          <li>Checklist jurídico antes de assinar o contrato</li>
+        </ul>
+      </div>
+      <LeadForm origem="isca-guia-litoral" variante="guia" titulo="Receba o guia gratuito" sub="Leva menos de 30 segundos." botao="Quero o guia" sucesso="O guia está a caminho do seu WhatsApp e e-mail." />
+    </div>
+  </section>
+
+  <section id="sobre">
+    <div class="container split">
+      <div class="split-media"><img src="/img/sobre-familia.jpg" alt="Família observando o pôr do sol no litoral catarinense" loading="lazy" width="700" height="875"></div>
+      <div>
+        <span class="eyebrow">Gestão especializada</span>
+        <h2 class="section-title">Patrimônio que gera <em>segurança</em> e liberdade</h2>
+        <p class="quote">“Ajudamos famílias e investidores a construírem patrimônio imobiliário com máxima <em>segurança</em>, <em>previsibilidade</em> e <em>transparência</em>.”</p>
+        <ul class="check-list">
+          <li>Especialistas no mercado de Porto Belo e Itapema</li>
+          <li>Curadoria de empreendimentos de construtoras sólidas</li>
+          <li>Acompanhamento do investimento após a compra</li>
+        </ul>
+        <a href="/sobre/" class="btn btn-outline">Conheça a VERO</a>
+      </div>
+    </div>
+  </section>
+
+  <Equipe classe="method" />
+
+  {posts.length > 0 && (
+    <section id="blog">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Blog VERO</span>
+            <h2 class="section-title">Aprenda a investir <em>em imóveis</em></h2>
+            <p class="section-lead">Conteúdo para quem quer investir no litoral catarinense e diversificar o patrimônio com segurança.</p>
+          </div>
+          <a href="/blog/" class="btn btn-outline">Ver todos os artigos</a>
+        </div>
+        <div class="blog-grid">{posts.map((p) => <PostCard post={p} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <section id="contato">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Diagnóstico imobiliário</span>
+        <h2 class="section-title">Vamos desenhar o <em>seu</em> próximo investimento</h2>
+        <p class="section-lead">Responda algumas perguntas e um especialista da VERO entra em contato com opções alinhadas ao seu objetivo e orçamento.</p>
+        <ul class="check-list">
+          <li>Atendimento personalizado, sem compromisso</li>
+          <li>Análise de rentabilidade e valorização</li>
+          <li>Retorno em até 1 dia útil</li>
+        </ul>
+      </div>
+      <LeadForm origem="diagnostico-home" variante="diagnostico" titulo="Solicitar diagnóstico" sub="Seus dados estão protegidos." botao="Quero meu diagnóstico" />
+    </div>
+  </section>
+</main>
+</Base>

@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { getPosts } from '../../lib/content';
+const posts = await getPosts();
+---
+<Base solidHeader
+  title="Blog VERO | Investimento imobiliário no litoral de Santa Catarina"
+  description="Aprenda a investir em imóveis: mercado de Porto Belo e Itapema, aluguel por temporada, compra na planta e como diversificar seu patrimônio com segurança.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Blog VERO</span>
+      <h1>Aprenda a investir <span class="gold-text">em imóveis</span></h1>
+      <p>Conteúdo para quem quer investir no litoral norte de Santa Catarina e diversificar o patrimônio com segurança.</p>
+    </div>
+  </div>
+  <section style="padding-top:60px">
+    <div class="container blog-grid">{posts.map((p) => <PostCard post={p} />)}</div>
+  </section>
+  <section class="magnet">
+    <div class="container magnet-inner">
+      <div>
+        <span class="eyebrow">Material gratuito</span>
+        <h2 class="section-title">Guia: como investir em imóveis no <em>litoral norte de SC</em></h2>
+        <p class="section-lead">Receba no seu WhatsApp e e-mail o guia com os números do mercado, as regiões que mais valorizam e o checklist jurídico antes de comprar.</p>
+      </div>
+      <LeadForm origem="isca-guia-litoral" variante="guia" titulo="Receba o guia gratuito" botao="Quero o guia" sucesso="O guia está a caminho do seu WhatsApp e e-mail." />
+    </div>
+  </section>
+</main>
+</Base>

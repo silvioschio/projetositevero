@@ -1,0 +1,21 @@
+---
+import PropertyCard from './PropertyCard.astro';
+import type { Imovel } from '../lib/types';
+import { cidades } from '../lib/content';
+interface Props { imoveis: Imovel[]; cidadeFixa?: string }
+const { imoveis, cidadeFixa } = Astro.props;
+---
+<div class="filters">
+  {!cidadeFixa && (
+    <select name="cidade" aria-label="Cidade"><option value="">Todas as cidades</option>{cidades.map((c) => <option>{c.nome}</option>)}</select>
+  )}
+  <select name="tipo" aria-label="Tipo"><option value="">Todos os tipos</option><option>Apartamento</option><option>Cobertura</option><option>Studio</option><option>Casa</option></select>
+  <select name="suites" aria-label="Suítes"><option value="">Qualquer nº de suítes</option><option value="1">1+ suíte</option><option value="2">2+ suítes</option><option value="3">3+ suítes</option><option value="4">4+ suítes</option></select>
+  <select name="status" aria-label="Estágio"><option value="">Qualquer estágio</option><option>Pré-lançamento</option><option>Lançamento</option><option>Em obras</option><option>Pronto para morar</option></select>
+</div>
+<p class="result-count">{imoveis.length} imóveis encontrados</p>
+<div class="cards" data-listagem>{imoveis.map((i) => <PropertyCard imovel={i} />)}</div>
+<div class="empty" style="display:none">
+  <h3>Nenhum imóvel com esses filtros</h3>
+  <p>Temos acesso a outros empreendimentos que ainda não estão no site. <a href="/contato/" style="color:var(--gold);text-decoration:underline">Conte o que você procura</a> e enviamos as opções.</p>
+</div>

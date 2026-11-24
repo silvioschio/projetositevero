@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import Listing from '../../components/Listing.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { getImoveis, cidades, linkCidade } from '../../lib/content';
+const imoveis = (await getImoveis()).filter((i) => i.finalidade === 'venda');
+const comPagina = cidades.filter((c) => c.principal || imoveis.some((i) => i.cidade === c.nome));
+---
+<Base solidHeader
+  title="Imóveis à venda em Porto Belo e Itapema – SC | VERO Soluções Imobiliárias"
+  description="Apartamentos à venda, lançamentos e imóveis na planta em Porto Belo e Itapema, no litoral norte de Santa Catarina. Filtre por cidade, tipo e número de suítes.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Comprar</span>
+      <h1>Imóveis à venda no <span class="gold-text">litoral norte de SC</span></h1>
+      <p>Lançamentos e imóveis selecionados no litoral catarinense, de Florianópolis a Barra Velha, analisados pelo Método VERO.</p>
+      <div class="city-links">
+        <a class="chip active" href="/imoveis/" data-chip="">Todos</a>
+        {cidades.map((c) => <a class="chip" href={linkCidade(c, comPagina)} data-chip={c.nome}>{c.nome}</a>)}
+      </div>
+    </div>
+  </div>
+  <section style="padding-top:60px">
+    <div class="container"><Listing imoveis={imoveis} /></div>
+  </section>
+  <section class="method" id="contato">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Não encontrou o que procura?</span>
+        <h2 class="section-title">Temos acesso a <em>mais opções</em></h2>
+        <p class="section-lead">Conte seu objetivo e orçamento: um especialista da VERO envia uma seleção personalizada, inclusive de empreendimentos que ainda não estão no site.</p>
+      </div>
+      <LeadForm origem="diagnostico-listagem" variante="diagnostico" titulo="Receber seleção personalizada" botao="Quero receber opções" />
+    </div>
+  </section>
+</main>
+</Base>

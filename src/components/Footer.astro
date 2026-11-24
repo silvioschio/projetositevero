@@ -1,0 +1,47 @@
+---
+import { waLink } from '../lib/content';
+const ano = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <img src="/img/logo-vero.png" alt="VERO Soluções Imobiliárias" width="157" height="56">
+      <p>Investimento imobiliário com segurança, previsibilidade e transparência em Porto Belo e Itapema – SC.</p>
+    </div>
+    <div>
+      <h4>Imóveis</h4>
+      <ul>
+        <li><a href="/imoveis/">Todos os imóveis</a></li>
+        <li><a href="/imoveis/porto-belo/">Imóveis em Porto Belo</a></li>
+        <li><a href="/imoveis/itapema/">Imóveis em Itapema</a></li>
+        <li><a href="/locacao/">Locação</a></li>
+        <li><a href="/locacao/#proprietario">Anunciar meu imóvel</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>VERO</h4>
+      <ul>
+        <li><a href="/#metodo">Método VERO</a></li>
+        <li><a href="/sobre/">Sobre nós</a></li>
+        <li><a href="/equipe/">Nossa equipe</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/contato/">Contato</a></li>
+        <li><a href="/politica-de-privacidade/">Política de Privacidade</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contato</h4>
+      <ul>
+        <li><a href={waLink('Olá! Vim pelo site da VERO.')} target="_blank" rel="noopener">WhatsApp: (47) 99992-2868</a></li>
+        <li><a href="mailto:verosolucoesimobiliarias@gmail.com">verosolucoesimobiliarias@gmail.com</a></li>
+        <li>Porto Belo · Itapema – SC</li>
+        <li><a href="https://www.instagram.com/silvio.schio/" target="_blank" rel="noopener">Instagram @silvio.schio</a></li>
+        <li>Silvio Schio · CRECI 70.345 F</li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© {ano} VERO Soluções Imobiliárias. Todos os direitos reservados.</span>
+    <span>Imagens meramente ilustrativas.</span>
+  </div>
+</footer>

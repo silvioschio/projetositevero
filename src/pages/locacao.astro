@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import { getImoveis } from '../lib/content';
+const paraAlugar = (await getImoveis()).filter((i) => i.finalidade === 'locacao');
+---
+<Base solidHeader
+  title="Aluguel de imóveis em Porto Belo e Itapema – SC | Anual e temporada | VERO"
+  description="Procurando imóvel para alugar em Porto Belo ou Itapema? Ou quer colocar seu imóvel para render com locação anual ou por temporada? Fale com a VERO."
+  whatsMsg="Olá! Vim pelo site da VERO e tenho interesse em locação.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Locação</span>
+      <h1>Aluguel anual e por temporada em <span class="gold-text">Porto Belo e Itapema</span></h1>
+      <p>Para quem procura um imóvel para alugar e para proprietários que querem fazer o imóvel render, com atendimento próximo e gestão profissional.</p>
+    </div>
+  </div>
+
+  {paraAlugar.length > 0 && (
+    <section style="padding-bottom:0">
+      <div class="container">
+        <span class="eyebrow">Disponíveis</span>
+        <h2 class="section-title">Imóveis para <em>alugar</em></h2>
+        <div class="cards" style="margin-top:30px">{paraAlugar.map((i) => <PropertyCard imovel={i} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <section id="inquilino">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Para quem procura</span>
+        <h2 class="section-title">Quero alugar um <em>imóvel</em></h2>
+        <p class="section-lead">Conte o que você precisa e enviamos as opções disponíveis, inclusive imóveis que ainda não estão anunciados.</p>
+        <ul class="check-list">
+          <li>Locação anual para morar no litoral</li>
+          <li>Temporada para férias com a família</li>
+          <li>Atendimento rápido pelo WhatsApp</li>
+        </ul>
+      </div>
+      <LeadForm origem="locacao-inquilino" variante="inquilino" titulo="Encontrar imóvel para alugar" botao="Quero ver opções" />
+    </div>
+  </section>
+
+  <section id="proprietario" class="method">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Para proprietários</span>
+        <h2 class="section-title">Coloque seu imóvel <em>para render</em></h2>
+        <p class="section-lead">Avaliamos seu imóvel e indicamos a melhor estratégia, anual ou temporada, para maximizar o retorno com segurança.</p>
+        <ul class="check-list">
+          <li>Avaliação do potencial de aluguel</li>
+          <li>Divulgação e seleção de inquilinos</li>
+          <li>Contratos e acompanhamento transparentes</li>
+        </ul>
+      </div>
+      <LeadForm origem="locacao-proprietario" variante="proprietario" titulo="Avaliar meu imóvel" botao="Quero uma avaliação" />
+    </div>
+  </section>
+</main>
+</Base>

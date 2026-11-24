@@ -1,0 +1,32 @@
+---
+interface Props { solid?: boolean }
+const { solid = false } = Astro.props;
+const path = Astro.url.pathname;
+const links = [
+  { href: '/imoveis/', label: 'Comprar' },
+  { href: '/locacao/', label: 'Locação' },
+  { href: '/#metodo', label: 'Método VERO' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/equipe/', label: 'Equipe' },
+  { href: '/sobre/', label: 'Sobre' },
+];
+const isActive = (href: string) => href !== '/#metodo' && path.startsWith(href.replace(/\/$/, ''))
+  || (href === '/imoveis/' && path.startsWith('/imovel/'));
+---
+<header class:list={['site-header', { solid }]}>
+  <div class="container nav">
+    <a href="/" class="nav-logo" aria-label="VERO Soluções Imobiliárias — início">
+      <img src="/img/logo-vero.png" alt="VERO Soluções Imobiliárias" width="140" height="50">
+    </a>
+    <ul class="nav-links">
+      {links.map((l) => <li><a href={l.href} class:list={{ active: isActive(l.href) }}>{l.label}</a></li>)}
+      <li class="nav-mobile-only"><a href="/contato/">Contato</a></li>
+    </ul>
+    <a href="/contato/" class="btn btn-outline nav-cta">Falar com especialista</a>
+    <button class="menu-toggle" aria-label="Abrir menu">☰</button>
+  </div>
+</header>
+<style>
+  .nav-mobile-only { display: none; }
+  @media (max-width: 1024px) { .nav-mobile-only { display: block; } }
+</style>

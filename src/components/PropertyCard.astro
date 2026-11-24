@@ -1,0 +1,27 @@
+---
+import type { Imovel } from '../lib/types';
+import { faixa } from '../lib/content';
+interface Props { imovel: Imovel }
+const { imovel: i } = Astro.props;
+const local = [i.bairro, i.cidade].filter(Boolean).join(' · ');
+const specs = [
+  faixa(i.areaMin, i.areaMax, ' m²'),
+  i.suitesMin ? `${faixa(i.suitesMin, i.suitesMax)} suíte${(i.suitesMax ?? i.suitesMin) > 1 ? 's' : ''}` : '',
+  i.distanciaPraia ? `${i.distanciaPraia} da praia` : '',
+  ...(i.tags ?? []).filter((t) => !t.includes('praia') && t !== 'Revenda'),
+].filter(Boolean).slice(0, 3);
+const capa = i.fotos[0];
+---
+<a class="card" href={`/imovel/${i.slug}/`}
+   data-cidade={i.cidade} data-tipo={i.tipo} data-suites={i.suitesMax ?? i.suitesMin ?? 0} data-status={i.status} data-finalidade={i.finalidade}>
+  <div class="card-media">
+    {capa && <img src={capa.src} alt={capa.alt} loading="lazy" width="600" height="450">}
+    <span class="badge">{i.revenda ? 'Revenda' : i.status}</span>
+  </div>
+  <div class="card-body">
+    <span class="card-loc">{local}</span>
+    <h3>{i.nome}</h3>
+    <div class="card-specs">{specs.map((s) => <span>{s}</span>)}</div>
+    <div class="card-foot"><span class="price">{i.preco ?? 'Sob consulta'}</span><span class="more">Ver imóvel →</span></div>
+  </div>
+</a>

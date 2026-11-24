@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Equipe from '../components/Equipe.astro';
+import { getEquipe } from '../lib/content';
+
+const equipe = await getEquipe();
+const jsonLd = equipe.map((c) => ({
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: c.nome,
+  jobTitle: c.cargo,
+  description: c.descricao,
+  ...(c.foto ? { image: new URL(c.foto.src, Astro.site).toString() } : {}),
+  telephone: `+${c.whatsapp}`,
+  areaServed: ['Porto Belo', 'Itapema', 'Bombinhas'].map((name) => ({ '@type': 'City', name })),
+  worksFor: { '@type': 'RealEstateAgent', name: 'VERO Soluções Imobiliárias', url: Astro.site?.toString() },
+}));
+---
+<Base solidHeader jsonLd={jsonLd}
+  title="Equipe VERO | Corretores de imóveis em Porto Belo e Itapema – SC"
+  description="Conheça os corretores da VERO Soluções Imobiliárias e fale direto pelo WhatsApp com um especialista em imóveis no litoral norte de Santa Catarina.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Nossa equipe</span>
+      <h1>Fale direto com um <span class="gold-text">especialista</span></h1>
+      <p>Corretores que conhecem cada empreendimento de perto e acompanham você da primeira conversa à entrega das chaves.</p>
+    </div>
+  </div>
+  <Equipe titulo={false} />
+</main>
+</Base>
