@@ -1,0 +1,106 @@
+---
+// "Faça parte da nossa equipe": inscrição de corretores e estagiários.
+// Só a inscrição (sem currículo): o Silvio liga depois. O lead vai para o Kommo no nome do Silvio, etiqueta "Recrutamento".
+import Base from '../layouts/Base.astro';
+import { cidades } from '../lib/content';
+---
+<Base solidHeader
+  title="Faça parte da nossa equipe | Trabalhe como corretor na VERO – Porto Belo e Itapema"
+  description="Corretor de imóveis ou estudante do TTI? Faça parte da equipe VERO em Porto Belo e Itapema: lançamentos de alto padrão, leads de marketing e o Método VERO. Inscreva-se."
+  whatsMsg="Olá! Vim pelo site da VERO e quero fazer parte da equipe.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Trabalhe conosco</span>
+      <h1>Faça parte da <span class="gold-text">nossa equipe</span></h1>
+      <p>Procuramos corretores e futuros corretores que queiram crescer no mercado imobiliário que mais se valoriza no litoral de Santa Catarina.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="container split recruta">
+      <div>
+        <span class="eyebrow">Por que a VERO</span>
+        <h2 class="section-title">Cresça com quem é <em>especialista</em></h2>
+        <ul class="check-list">
+          <li><b>Mercado em alta:</b> Porto Belo e Itapema, entre as cidades que mais vendem imóveis novos no país</li>
+          <li><b>Produtos de qualidade:</b> lançamentos e revendas das principais construtoras da região</li>
+          <li><b>Clientes chegando:</b> leads do site, das redes sociais e de anúncios, organizados no CRM</li>
+          <li><b>Ferramentas próprias:</b> link pessoal da calculadora "Qual imóvel cabe no seu bolso?" para você divulgar</li>
+          <li><b>Método VERO:</b> treinamento e acompanhamento para atender investidores com segurança</li>
+        </ul>
+        <div class="perfis">
+          <div><b>Corretor com CRECI</b><span>Com ou sem experiência em lançamentos.</span></div>
+          <div><b>Estagiário / em formação</b><span>Fazendo o TTI ou tirando o CRECI.</span></div>
+        </div>
+      </div>
+
+      <div class="lead-form">
+        <form data-origem="recrutamento" novalidate>
+          <h3>Quero fazer parte</h3>
+          <p class="sub">Preencha em 1 minuto. O Silvio vai te ligar para conhecer melhor o seu perfil.</p>
+          <input class="hp" type="text" name="empresa" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="form-row"><input name="nome" placeholder="Seu nome completo" autocomplete="name" required></div>
+          <div class="form-row two">
+            <input name="whatsapp" type="tel" placeholder="WhatsApp com DDD" autocomplete="tel" inputmode="tel" required>
+            <input name="email" type="email" placeholder="E-mail (opcional)" autocomplete="email">
+          </div>
+          <div class="form-row">
+            <select name="perfil" required aria-label="Seu perfil">
+              <option value="">Seu perfil</option>
+              <option>Corretor com CRECI</option>
+              <option>Estagiário / fazendo o TTI</option>
+              <option>Quero começar na profissão</option>
+            </select>
+          </div>
+          <div class="form-row" data-creci hidden><input name="creci" placeholder="Número do CRECI (ex.: 12.345 F)" disabled></div>
+          <div class="form-row two">
+            <select name="experiencia" required aria-label="Experiência com imóveis">
+              <option value="">Experiência com imóveis</option>
+              <option>Nenhuma ainda</option><option>Até 1 ano</option><option>1 a 3 anos</option><option>Mais de 3 anos</option>
+            </select>
+            <select name="cidade" required aria-label="Cidade onde mora">
+              <option value="">Cidade onde mora</option>{cidades.map((c) => <option>{c.nome}</option>)}<option>Outra</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <select name="horario" aria-label="Melhor horário para ligação">
+              <option value="">Melhor horário para a ligação</option><option>Manhã</option><option>Tarde</option><option>Noite</option><option>Qualquer horário</option>
+            </select>
+          </div>
+          <div class="form-row"><textarea name="mensagem" rows="3" placeholder="Conte um pouco sobre você (opcional)"></textarea></div>
+          <label class="consent"><input type="checkbox" name="consentimento" required> <span>Concordo em receber contato da VERO e com a <a href="/politica-de-privacidade/" target="_blank" style="text-decoration:underline">Política de Privacidade</a>.</span></label>
+          <button class="btn btn-gold btn-block" type="submit">Enviar inscrição</button>
+          <p class="form-error">Não foi possível enviar. Confira os campos ou fale com a gente pelo WhatsApp.</p>
+        </form>
+        <div class="form-success" role="status">
+          <div class="icon">✓</div>
+          <h3>Inscrição recebida!</h3>
+          <p class="sub">Obrigado pelo interesse em fazer parte da VERO. O Silvio vai te ligar em breve para uma conversa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</Base>
+
+<script>
+  // Campo CRECI aparece só para quem já é corretor
+  const perfil = document.querySelector<HTMLSelectElement>('[name=perfil]')!;
+  const creci = document.querySelector<HTMLElement>('[data-creci]')!;
+  perfil.addEventListener('change', () => {
+    creci.hidden = perfil.value !== 'Corretor com CRECI';
+    creci.querySelector('input')!.disabled = creci.hidden;
+  });
+</script>
+
+<style>
+  .recruta { align-items: start; }
+  .recruta .check-list b { color: var(--white); font-weight: 600; }
+  .perfis { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .perfis div { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; background: var(--panel); }
+  .perfis b { display: block; font-family: var(--serif); font-size: 19px; font-weight: 500; color: var(--gold-light); margin-bottom: 4px; }
+  .perfis span { font-size: 13px; color: var(--muted); }
+  @media (max-width: 1024px) { .recruta .lead-form { order: -1; } }
+  @media (max-width: 720px) { .perfis { grid-template-columns: 1fr; } }
+</style>

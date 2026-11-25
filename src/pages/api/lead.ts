@@ -16,6 +16,7 @@ const ORIGENS: Record<string, string> = {
   'blog-artigo': 'Blog',
   calculadora: 'Calculadora',
   captacao: 'Cadastro de imóvel',
+  recrutamento: 'Recrutamento',
 };
 
 const clean = (v: unknown, max = 300) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -50,20 +51,25 @@ export const POST: APIRoute = async ({ request }) => {
   const utm = (body.utm && typeof body.utm === 'object' ? body.utm : {}) as Record<string, string>;
 
   // Corretor que enviou o link (confirmado no painel: o site não confia no nome vindo do navegador)
-  // Cadastro de imóvel (captação de proprietários) vai sempre para o Silvio; os demais, para o corretor do link, se houver.
-  const corretor = origemId === 'captacao'
+  // Cadastro de imóvel (captação) e Recrutamento vão sempre para o Silvio; os demais, para o corretor do link, se houver.
+  const paraSilvio = origemId === 'captacao' || origemId === 'recrutamento';
+  const corretor = paraSilvio
     ? { nome: 'Silvio Schio', kommoNome: 'SILVIO' }
     : await buscaCorretor(clean(body.corretor, 80));
 
   const detalhes: [string, string][] = [
     ['Origem', origem],
-    ['Corretor que indicou', origemId === 'captacao' ? '' : corretor?.nome ?? ''],
+    ['Corretor que indicou', paraSilvio ? '' : corretor?.nome ?? ''],
     ['Imóvel', imovel],
     ['Planta', clean(body.planta)],
     ['Objetivo', clean(body.objetivo)],
     ['Interesse', clean(body.interesse)],
     ['Investimento', clean(body.investimento)],
     ['Cidade', clean(body.cidade)],
+    ['Perfil', clean(body.perfil, 60)],
+    ['CRECI', clean(body.creci, 40)],
+    ['Experiência', clean(body.experiencia, 40)],
+    ['Melhor horário para ligação', clean(body.horario, 40)],
     ['Tipo de imóvel', clean(body.tipo_imovel, 60)],
     ['Bairro / empreendimento', clean(body.bairro, 160)],
     ['Dormitórios', clean(body.dormitorios, 40)],
@@ -114,7 +120,7 @@ export const POST: APIRoute = async ({ request }) => {
     _embedded: {
       contacts: [contato],
       tags: [{ name: 'Site' }, { name: origem }, ...(imovel ? [{ name: imovel }] : []), ...(utm.utm_source ? [{ name: `utm:${utm.utm_source}` }] : []),
-        ...(corretor && origemId !== 'captacao' ? [{ name: `Indicação: ${corretor.nome}` }] : [])],
+        ...(corretor && !paraSilvio ? [{ name: `Indicação: ${corretor.nome}` }] : [])],
     },
   };
   const pipeline = Number(env('KOMMO_PIPELINE_ID'));
