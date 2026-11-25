@@ -171,7 +171,6 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     res.querySelector('[data-conta]')!.innerHTML = [
       `<li><span>Entrada</span><b>${brl(entrada)}</b></li>`,
       `<li><span>${prazo} parcelas de ${brl(parcela)}</span><b>${brl(parcela * prazo)}</b></li>`,
-      `<li><span>Na entrega das chaves (${pctChaves * 100}% do imóvel)</span><b>${brl(valorChaves)}</b></li>`,
       reforco ? `<li><span>${reforcos} reforços anuais de ${brl(reforco)}</span><b>${brl(reforco * reforcos)}</b></li>` : '',
     ].join('');
     const n = cabem.length;
