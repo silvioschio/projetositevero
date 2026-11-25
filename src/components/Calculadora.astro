@@ -46,9 +46,9 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
         <div class="form-row"><input id="c-entrada" name="entrada" inputmode="numeric" placeholder="R$ 100.000" data-moeda required></div>
         <label class="calc-label" for="c-parcela">2. Parcela mensal <small>quanto cabe no seu mês sem apertar</small></label>
         <div class="form-row"><input id="c-parcela" name="parcela" inputmode="numeric" placeholder="R$ 5.000" data-moeda required></div>
-        <label class="calc-label" for="c-chaves">3. Pagamento na entrega das chaves <small>percentual do valor do imóvel; o mínimo costuma ser 10%, o mesmo da entrada</small></label>
+        <label class="calc-label" for="c-chaves">3. Pagamento na entrega das chaves <small>até 10% do valor do imóvel, normalmente o mesmo valor da entrada</small></label>
         <div class="form-row">
-          <select id="c-chaves" name="chaves">{[0, 10, 15, 20, 25, 30].map((p) => <option value={p} selected={p === 10}>{p === 0 ? '0% (não vou pagar nas chaves)' : `${p}% do valor do imóvel`}</option>)}</select>
+          <select id="c-chaves" name="chaves">{[10, 0].map((p) => <option value={p} selected={p === 10}>{p === 0 ? '0% (não vou pagar nas chaves)' : `${p}% do valor do imóvel`}</option>)}</select>
         </div>
         <label class="calc-label" for="c-reforco">4. Reforço anual <small>13º, bônus, férias… se não tiver, deixe em branco</small></label>
         <div class="form-row"><input id="c-reforco" name="reforco" inputmode="numeric" placeholder="R$ 20.000" data-moeda></div>
