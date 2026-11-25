@@ -17,10 +17,21 @@ const posts = (await getPosts()).slice(0, 3);
 <main>
   <section class="hero">
     <div class="container">
-      <div class="hero-content">
-        <span class="eyebrow">Porto Belo · Itapema · Litoral Norte de SC</span>
-        <h1>Imóveis para <span class="gold-text">investir e viver</span> no litoral catarinense.</h1>
-        <p>Construímos patrimônio imobiliário com segurança, previsibilidade e transparência, do primeiro contato à entrega das chaves.</p>
+      <div class="hero-grid">
+        <div class="hero-content">
+          <span class="eyebrow">Porto Belo · Itapema · Litoral Norte de SC</span>
+          <h1>Imóveis para <span class="gold-text">investir e viver</span> no litoral catarinense.</h1>
+          <p>Construímos patrimônio imobiliário com segurança, previsibilidade e transparência, do primeiro contato à entrega das chaves.</p>
+          <div class="hero-ctas">
+            <a href="/imoveis/" class="btn btn-gold">Ver imóveis</a>
+            <a href="/calculadora/" class="btn btn-outline">Qual imóvel cabe no meu bolso?</a>
+          </div>
+        </div>
+        <div class="hero-media">
+          <img src="/img/hero-litoral-wide.jpg" alt="Orla de Itapema e Porto Belo ao entardecer, vista de drone" width="1200" height="960" fetchpriority="high">
+          <div class="hero-chip"><strong>{imoveis.length}</strong><span>empreendimentos<br>selecionados pela VERO</span></div>
+        </div>
+      </div>
 
         <form class="search" action="/imoveis/" method="get" role="search">
           <input type="hidden" name="status" value="">
@@ -45,7 +56,6 @@ const posts = (await getPosts()).slice(0, 3);
             <button class="btn btn-gold" type="submit">Buscar</button>
           </div>
         </form>
-      </div>
     </div>
   </section>
 

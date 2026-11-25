@@ -1,20 +1,25 @@
 /* VERO Soluções Imobiliárias — protótipo visual */
 :root {
-  --black: #070707;
-  --ink: #0e0e0e;
-  --panel: #141414;
-  --line: rgba(210, 188, 149, .22);
-  --gold: #D2BC95;
-  --gold-light: #F4E9C9;
-  --gold-dark: #B89763;
-  --white: #ffffff;
-  --muted: rgba(255, 255, 255, .68);
+  /* Tema claro (nov/2026). Os nomes antigos foram mantidos para não mexer em todo o código:
+     --black = fundo da página · --ink = faixas em tom areia · --panel = cartões brancos · --white = texto principal */
+  --black: #FBF9F5;
+  --ink: #F4EFE6;
+  --panel: #FFFFFF;
+  --line: #E7DFD2;
+  --gold: #8C6B3A;        /* dourado legível sobre o claro (textos, ícones) */
+  --gold-light: #7A5C2E;  /* destaques em texto (preços, rótulos) */
+  --gold-dark: #6E5530;
+  --gold-soft: #B89763;   /* dourado da marca para linhas e detalhes */
+  --white: #1A1A1A;
+  --muted: #5F5A53;
   --cream: #F7F3EA;
   --text-dark: #1b1b1b;
   --serif: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
   --sans: "Montserrat", "Avenir Next", "Avenir", Helvetica, Arial, sans-serif;
-  --radius: 4px;
+  --radius: 14px;
   --max: 1240px;
+  --shadow: 0 1px 2px rgba(26,26,26,.04), 0 8px 28px rgba(26,26,26,.06);
+  --shadow-hover: 0 2px 4px rgba(26,26,26,.05), 0 18px 40px rgba(26,26,26,.10);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -363,3 +368,117 @@ h1, h2, h3, .quote, .stat strong, .fact strong, .letter, .prop-price strong {
   .menu-toggle { display: block; }
   .nav-cta { display: none; }
 }
+
+
+/* ================= TEMA CLARO (clean) ================= */
+body { color: #4A4641; }
+h1, h2, h3, .section-title, .card h3, .team-body h3, .rent-card h3, .lead-form h3, .prop-head h1, .page-hero h1, .hero h1 { color: var(--white); }
+.gold-text { background: none; -webkit-background-clip: initial; background-clip: initial; color: var(--gold); }
+.section-lead, .check-list li, .method-item p, .card-specs { color: var(--muted); }
+
+/* Botões: principal grafite, secundário com contorno */
+.btn-gold { background: var(--white); color: #fff; }
+.btn-gold:hover { background: #333; filter: none; transform: translateY(-1px); }
+.btn-outline { border-color: var(--white); color: var(--white); }
+.btn-outline:hover { background: var(--white); color: #fff; }
+
+/* Cabeçalho sempre branco */
+.site-header, .site-header.scrolled, .site-header.solid { background: rgba(255,255,255,.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.nav { height: 80px; }
+.nav-logo img { height: 46px; }
+.nav-links a { color: #4A4641; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.menu-toggle { color: var(--white); }
+@media (max-width: 1180px) { .nav-links.open { top: 80px; background: #fff; box-shadow: var(--shadow); } }
+
+/* Primeira tela da home: texto + foto lado a lado */
+.hero { min-height: 0; display: block; background: none; padding: 136px 0 30px; }
+.hero::before { display: none; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; }
+.hero-content { padding: 0; max-width: none; }
+.hero h1 { font-size: clamp(38px, 4.6vw, 62px); }
+.hero p { color: #4A4641; max-width: 520px; }
+.hero-ctas { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+.hero-media { position: relative; }
+.hero-media img { width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 22px; }
+.hero-chip { position: absolute; left: -28px; bottom: 28px; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 22px; display: flex; gap: 14px; align-items: center; }
+.hero-chip strong { font-family: var(--serif); font-size: 32px; font-weight: 500; color: var(--white); line-height: 1; }
+.hero-chip span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+@media (max-width: 1024px) { .hero-grid { grid-template-columns: 1fr; gap: 36px; } .hero-chip { left: 16px; } }
+@media (max-width: 720px) { .hero { padding-top: 110px; } }
+
+/* Busca */
+.search { background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); backdrop-filter: none; max-width: none; margin-top: 44px; padding: 10px; }
+.search-tab { color: var(--muted); }
+.search-tab.active { background: var(--ink); color: var(--white); }
+.field { background: transparent; border-radius: 10px; }
+.field + .field { border-left: 1px solid var(--line); border-radius: 0; }
+.field select { color: var(--white); }
+.field select option, .lead-form select option { background: #fff; color: var(--white); }
+.search .btn { border-radius: 12px; }
+@media (max-width: 720px) { .field + .field { border-left: 0; border-top: 1px solid var(--line); } }
+
+/* Números */
+.stats { background: transparent; border: 0; padding: 40px 0 0; }
+.stats-grid { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stat { border-color: var(--line); }
+.stat strong { color: var(--white); }
+
+/* Cartões */
+.card, .team-card, .rent-card { border: 0; box-shadow: var(--shadow); }
+.card:hover, .team-card:hover { box-shadow: var(--shadow-hover); }
+.badge { background: rgba(255,255,255,.94); color: var(--white); border: 0; }
+.card-foot .price { color: var(--white); }
+.team-photo { background: var(--ink); }
+.team-creci { color: var(--muted); }
+.team-tags li { color: var(--gold); }
+
+/* Faixas e blocos */
+.method { background: #fff; border-block: 1px solid var(--line); }
+.method-item .letter { color: var(--gold-soft); }
+.rent { background: var(--ink); }
+.split-media { border-radius: 22px; }
+.split-media::after { display: none; }
+.quote { color: var(--white); padding-left: 20px; border-left: 2px solid var(--gold-soft); }
+.magnet::before { background: linear-gradient(90deg, rgba(251,249,245,.97) 35%, rgba(251,249,245,.82)); }
+.calc-banner-inner { border: 0; border-radius: 22px; background: var(--ink); }
+.invest-box { border: 0; border-radius: var(--radius); background: var(--ink); }
+.page-hero { background: linear-gradient(180deg, var(--ink), var(--black)); padding: 140px 0 64px; }
+.breadcrumb { padding-top: 110px; }
+.disclaimer { color: var(--muted); }
+.chip { color: var(--white); background: #fff; }
+.chip:hover, .chip.active { background: var(--ink); border-color: var(--gold-soft); }
+.filters select { background: #fff; }
+
+/* Formulários */
+.lead-form { background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.lead-form input, .lead-form select, .lead-form textarea { background: var(--black); border: 1px solid var(--line); color: var(--white); border-radius: 10px; }
+.lead-form input:focus, .lead-form select:focus, .lead-form textarea:focus { border-color: var(--gold-soft); background: #fff; }
+.lead-form input::placeholder, .lead-form textarea::placeholder { color: #9A948B; }
+.form-error { color: #B4442E; }
+.form-success .icon { color: var(--gold-soft); }
+
+/* Página do imóvel */
+.gallery { border-radius: 18px; }
+.gallery .more-photos { background: rgba(26,26,26,.55); color: #fff; }
+.prop-price { background: #fff; border-color: var(--line); box-shadow: var(--shadow); }
+.price-compare s { color: var(--muted); }
+.price-compare b { color: #2E7D4F; }
+.key-facts { background: #fff; }
+.fact strong { color: var(--white); }
+.amenities li { background: #fff; }
+.units td { color: #4A4641; }
+.map { filter: grayscale(.4); }
+.agent .avatar { color: #fff; background: var(--gold-soft); }
+
+/* Artigo */
+.prose { color: #3E3A35; }
+.prose strong { color: var(--white); }
+
+/* Rodapé */
+.site-footer { background: var(--ink); }
+.footer-bottom { color: var(--muted); }
+.wa-float { box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+
+.stat strong.gold-text { color: var(--white); }
+.links-card { border: 0; box-shadow: var(--shadow); }

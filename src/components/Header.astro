@@ -17,7 +17,7 @@ const isActive = (href: string) => href !== '/#metodo' && path.startsWith(href.r
 <header class:list={['site-header', { solid }]}>
   <div class="container nav">
     <a href="/" class="nav-logo" aria-label="VERO Soluções Imobiliárias — início">
-      <img src="/img/logo-vero.png" alt="VERO Soluções Imobiliárias" width="140" height="50">
+      <img src="/img/logo-vero-escura.png" alt="VERO Soluções Imobiliárias" width="140" height="50">
     </a>
     <ul class="nav-links">
       {links.map((l) => <li><a href={l.href} class:list={{ active: isActive(l.href) }}>{l.label}</a></li>)}
