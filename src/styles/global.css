@@ -348,3 +348,18 @@ h1, h2, h3, .quote, .stat strong, .fact strong, .letter, .prop-price strong {
 .calc-banner-topo { padding: 70px 0 0; }
 .calc-banner-topo + section { padding-top: 90px; }
 @media (max-width: 720px) { .calc-banner { padding-bottom: 80px; } .calc-banner-inner { padding: 30px; } .calc-banner-topo { padding: 50px 0 0; } .calc-banner-topo + section { padding-top: 70px; } }
+
+/* Menu com 7 itens: compacta em telas médias e vira menu ☰ abaixo de 1180px */
+.nav-links a { white-space: nowrap; }
+@media (max-width: 1360px) {
+  .nav-links { gap: 22px; }
+  .nav-links a { font-size: 12px; letter-spacing: .08em; }
+  .nav-cta { padding: 10px 16px; font-size: 11px; letter-spacing: .1em; white-space: nowrap; }
+}
+@media (max-width: 1180px) {
+  .nav-links { display: none; }
+  .nav-links.open { display: flex; position: absolute; top: 86px; left: 0; right: 0; flex-direction: column; gap: 0; background: rgba(7,7,7,.98); border-bottom: 1px solid var(--line); }
+  .nav-links.open a { display: block; padding: 18px 24px; border-top: 1px solid var(--line); font-size: 13px; }
+  .menu-toggle { display: block; }
+  .nav-cta { display: none; }
+}

@@ -56,7 +56,11 @@ const paraAlugar = (await getImoveis()).filter((i) => i.finalidade === 'locacao'
           <li>Contratos e acompanhamento transparentes</li>
         </ul>
       </div>
-      <LeadForm origem="locacao-proprietario" variante="proprietario" titulo="Avaliar meu imóvel" botao="Quero uma avaliação" />
+      <div class="invest-box">
+        <h3>Cadastre seu imóvel para alugar</h3>
+        <p>Leva 1 minuto: conte como é o imóvel e se prefere locação anual ou por temporada. Retornamos com a avaliação do potencial de aluguel.</p>
+        <a href="/anuncie-seu-imovel/" class="btn btn-gold">Cadastrar meu imóvel</a>
+      </div>
     </div>
   </section>
 </main>

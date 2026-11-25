@@ -1,0 +1,165 @@
+---
+// "Anuncie seu imóvel": captação de proprietários (vender, repassar na planta, alugar, permutar, avaliar).
+// Formulário em 2 etapas. O lead vai para o Kommo no nome do Silvio (Encaminhamento = SILVIO).
+import Base from '../layouts/Base.astro';
+import { cidades } from '../lib/content';
+const tipos = ['Apartamento', 'Cobertura', 'Casa', 'Casa em condomínio', 'Studio', 'Terreno', 'Sala comercial', 'Outro'];
+---
+<Base solidHeader
+  title="Anuncie seu imóvel | Vender, alugar ou repassar no litoral de SC | VERO"
+  description="Quer vender, alugar, permutar ou repassar seu imóvel na planta em Porto Belo, Itapema e região? Cadastre seu imóvel e receba uma avaliação gratuita da VERO."
+  whatsMsg="Olá! Vim pelo site da VERO e quero anunciar meu imóvel.">
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Para proprietários</span>
+      <h1>Anuncie seu imóvel com a <span class="gold-text">VERO</span></h1>
+      <p>Vender, alugar, permutar ou repassar um imóvel comprado na planta: cadastre em 1 minuto e receba uma avaliação gratuita.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="container split anuncie">
+      <div>
+        <span class="eyebrow">Por que a VERO</span>
+        <h2 class="section-title">Seu imóvel na frente de quem <em>quer investir</em></h2>
+        <ul class="check-list">
+          <li><b>Avaliação gratuita</b> pelo Método VERO, com base nas vendas reais da região</li>
+          <li><b>Carteira de investidores</b> procurando imóveis em Porto Belo, Itapema e região</li>
+          <li><b>Repasse de imóveis na planta</b>: ajudamos você a vender antes da entrega das chaves</li>
+          <li><b>Divulgação</b> para mais de 63 mil seguidores e em anúncios segmentados</li>
+          <li><b>Acompanhamento</b> da proposta até a escritura, com transparência</li>
+        </ul>
+        <p class="section-lead">Fotos e documentos não são necessários agora: depois do cadastro, entramos em contato pelo WhatsApp.</p>
+      </div>
+
+      <div class="lead-form anuncie-form">
+        <form data-origem="captacao" novalidate data-passo="1">
+          <input class="hp" type="text" name="empresa" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <p class="passos"><span class="on">1. Seu imóvel</span><span>2. Seus dados</span></p>
+
+          <div class="passo" data-passo-campos="1">
+            <h3>Seu imóvel</h3>
+            <label class="rotulo" for="a-objetivo">O que você deseja?</label>
+            <div class="form-row">
+              <select id="a-objetivo" name="objetivo" required>
+                <option value="">Selecione…</option>
+                <option>Vender</option>
+                <option>Repassar imóvel na planta</option>
+                <option>Alugar</option>
+                <option>Permutar</option>
+                <option>Quero só uma avaliação</option>
+              </select>
+            </div>
+            <div class="form-row two">
+              <select name="tipo_imovel" required aria-label="Tipo de imóvel">
+                <option value="">Tipo de imóvel</option>{tipos.map((t) => <option>{t}</option>)}
+              </select>
+              <select name="cidade" required aria-label="Cidade do imóvel">
+                <option value="">Cidade do imóvel</option>{cidades.map((c) => <option>{c.nome}</option>)}<option>Outra</option>
+              </select>
+            </div>
+            <div class="form-row"><input name="bairro" placeholder="Bairro ou nome do empreendimento"></div>
+            <div class="form-row two">
+              <select name="dormitorios" aria-label="Dormitórios">
+                <option value="">Dormitórios</option><option>Studio / 1</option><option>2</option><option>3</option><option>4 ou mais</option><option>Não se aplica</option>
+              </select>
+              <input name="area" inputmode="decimal" placeholder="Área privativa (m²)">
+            </div>
+
+            <div class="condicional" data-se="Repassar imóvel na planta" hidden>
+              <p class="cond-titulo">Sobre o imóvel na planta</p>
+              <div class="form-row two">
+                <input name="construtora" placeholder="Construtora" disabled>
+                <input name="entrega_planta" placeholder="Previsão de entrega (ex.: dez/2028)" disabled>
+              </div>
+              <div class="form-row two">
+                <input name="valor_pago" inputmode="numeric" placeholder="Quanto já pagou (R$)" data-moeda disabled>
+                <input name="saldo_devedor" inputmode="numeric" placeholder="Saldo a pagar (R$)" data-moeda disabled>
+              </div>
+            </div>
+            <div class="condicional" data-se="Alugar" hidden>
+              <p class="cond-titulo">Sobre a locação</p>
+              <div class="form-row two">
+                <select name="periodo" aria-label="Tipo de locação" disabled>
+                  <option value="">Tipo de locação</option><option>Anual</option><option>Temporada</option><option>Quero orientação</option>
+                </select>
+                <select name="mobiliado" aria-label="Mobiliado" disabled>
+                  <option value="">Mobiliado?</option><option>Sim</option><option>Não</option><option>Semimobiliado</option>
+                </select>
+              </div>
+            </div>
+
+            <label class="rotulo" for="a-valor">Valor desejado <small>(opcional)</small></label>
+            <div class="form-row"><input id="a-valor" name="valor_desejado" inputmode="numeric" placeholder="R$ 0" data-moeda></div>
+            <button class="btn btn-gold btn-block" type="button" data-avancar>Continuar</button>
+          </div>
+
+          <div class="passo" data-passo-campos="2" hidden>
+            <h3>Seus dados</h3>
+            <p class="sub">Para enviarmos a avaliação e combinarmos os próximos passos.</p>
+            <div class="form-row"><input name="nome" placeholder="Seu nome" autocomplete="name" required></div>
+            <div class="form-row"><input name="whatsapp" type="tel" placeholder="WhatsApp com DDD" autocomplete="tel" inputmode="tel" required></div>
+            <div class="form-row"><input name="email" type="email" placeholder="E-mail" autocomplete="email" required></div>
+            <div class="form-row"><textarea name="mensagem" rows="3" placeholder="Algo mais que devemos saber? (opcional)"></textarea></div>
+            <label class="consent"><input type="checkbox" name="consentimento" required> <span>Concordo em receber contato da VERO e com a <a href="/politica-de-privacidade/" target="_blank" style="text-decoration:underline">Política de Privacidade</a>.</span></label>
+            <button class="btn btn-gold btn-block" type="submit">Cadastrar meu imóvel</button>
+            <button class="voltar" type="button" data-voltar>← Voltar</button>
+            <p class="form-error">Não foi possível enviar. Confira os campos ou fale com a gente pelo WhatsApp.</p>
+          </div>
+        </form>
+        <div class="form-success" role="status">
+          <div class="icon">✓</div>
+          <h3>Imóvel cadastrado!</h3>
+          <p class="sub">Recebemos as informações. O Silvio, da VERO, vai falar com você pelo WhatsApp para os próximos passos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('.anuncie-form form')!;
+  const passo = (n: number) => {
+    form.querySelectorAll<HTMLElement>('[data-passo-campos]').forEach((p) => (p.hidden = p.dataset.passoCampos !== String(n)));
+    form.querySelectorAll('.passos span').forEach((s, i) => s.classList.toggle('on', i === n - 1));
+    form.closest('.lead-form')!.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  // Campos que aparecem conforme o objetivo (os ocultos ficam desativados e não são enviados)
+  const objetivo = form.querySelector<HTMLSelectElement>('[name=objetivo]')!;
+  objetivo.addEventListener('change', () =>
+    form.querySelectorAll<HTMLElement>('.condicional').forEach((c) => {
+      c.hidden = c.dataset.se !== objetivo.value;
+      c.querySelectorAll<HTMLInputElement>('input, select').forEach((el) => (el.disabled = c.hidden));
+    }));
+  form.querySelector('[data-avancar]')!.addEventListener('click', () => {
+    const campos = [...form.querySelectorAll<HTMLInputElement>('[data-passo-campos="1"] [required]')];
+    const invalido = campos.find((c) => !c.checkValidity());
+    if (invalido) return invalido.reportValidity();
+    passo(2);
+    form.querySelector<HTMLInputElement>('[name=nome]')!.focus({ preventScroll: true });
+  });
+  form.querySelector('[data-voltar]')!.addEventListener('click', () => passo(1));
+  // Dinheiro formatado enquanto digita
+  const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  form.querySelectorAll<HTMLInputElement>('[data-moeda]').forEach((el) =>
+    el.addEventListener('input', () => { const n = Number(el.value.replace(/\D/g, '')); el.value = n ? brl(n) : ''; }));
+</script>
+
+<style>
+  .anuncie { align-items: start; }
+  .anuncie .check-list b { color: var(--white); font-weight: 600; }
+  .passos { display: flex; gap: 8px; margin-bottom: 22px; }
+  .passos span { flex: 1; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding-bottom: 10px; border-bottom: 2px solid rgba(255,255,255,.12); }
+  .passos span.on { color: var(--gold); border-color: var(--gold); }
+  .passo h3 { margin-bottom: 14px; }
+  .rotulo { display: block; font-size: 13px; font-weight: 600; color: var(--gold-light); margin: 6px 0 8px; }
+  .rotulo small { font-weight: 400; color: var(--muted); }
+  .cond-titulo { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin: 10px 0 10px; }
+  .anuncie-form .btn { margin-top: 10px; }
+  .voltar { display: block; margin: 14px auto 0; background: none; border: 0; color: var(--muted); font-family: var(--sans); font-size: 13px; cursor: pointer; }
+  .voltar:hover { color: var(--gold); }
+  .anuncie-form { scroll-margin-top: 110px; }
+  @media (max-width: 1024px) { .anuncie-form { order: -1; } }
+</style>

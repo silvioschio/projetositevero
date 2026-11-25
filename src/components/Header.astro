@@ -5,6 +5,7 @@ const path = Astro.url.pathname;
 const links = [
   { href: '/imoveis/', label: 'Comprar' },
   { href: '/locacao/', label: 'Locação' },
+  { href: '/anuncie-seu-imovel/', label: 'Anuncie seu imóvel' },
   { href: '/#metodo', label: 'Método VERO' },
   { href: '/blog/', label: 'Blog' },
   { href: '/equipe/', label: 'Equipe' },
@@ -28,5 +29,5 @@ const isActive = (href: string) => href !== '/#metodo' && path.startsWith(href.r
 </header>
 <style>
   .nav-mobile-only { display: none; }
-  @media (max-width: 1024px) { .nav-mobile-only { display: block; } }
+  @media (max-width: 1180px) { .nav-mobile-only { display: block; } }
 </style>

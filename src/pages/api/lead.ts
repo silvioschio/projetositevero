@@ -15,6 +15,7 @@ const ORIGENS: Record<string, string> = {
   'locacao-proprietario': 'Locação – proprietário',
   'blog-artigo': 'Blog',
   calculadora: 'Calculadora',
+  captacao: 'Cadastro de imóvel',
 };
 
 const clean = (v: unknown, max = 300) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -49,17 +50,30 @@ export const POST: APIRoute = async ({ request }) => {
   const utm = (body.utm && typeof body.utm === 'object' ? body.utm : {}) as Record<string, string>;
 
   // Corretor que enviou o link (confirmado no painel: o site não confia no nome vindo do navegador)
-  const corretor = await buscaCorretor(clean(body.corretor, 80));
+  // Cadastro de imóvel (captação de proprietários) vai sempre para o Silvio; os demais, para o corretor do link, se houver.
+  const corretor = origemId === 'captacao'
+    ? { nome: 'Silvio Schio', kommoNome: 'SILVIO' }
+    : await buscaCorretor(clean(body.corretor, 80));
 
   const detalhes: [string, string][] = [
     ['Origem', origem],
-    ['Corretor que indicou', corretor?.nome ?? ''],
+    ['Corretor que indicou', origemId === 'captacao' ? '' : corretor?.nome ?? ''],
     ['Imóvel', imovel],
     ['Planta', clean(body.planta)],
     ['Objetivo', clean(body.objetivo)],
     ['Interesse', clean(body.interesse)],
     ['Investimento', clean(body.investimento)],
     ['Cidade', clean(body.cidade)],
+    ['Tipo de imóvel', clean(body.tipo_imovel, 60)],
+    ['Bairro / empreendimento', clean(body.bairro, 160)],
+    ['Dormitórios', clean(body.dormitorios, 40)],
+    ['Área privativa', clean(body.area, 20) ? `${clean(body.area, 20)} m²` : ''],
+    ['Construtora', clean(body.construtora, 120)],
+    ['Previsão de entrega', clean(body.entrega_planta, 60)],
+    ['Valor já pago', clean(body.valor_pago, 40)],
+    ['Saldo a pagar', clean(body.saldo_devedor, 40)],
+    ['Mobiliado', clean(body.mobiliado, 40)],
+    ['Valor desejado', clean(body.valor_desejado, 40) || (origemId === 'captacao' ? 'Não informado' : '')],
     ['Tipo de locação', clean(body.periodo)],
     ['Mensagem', clean(body.mensagem, 1500)],
     ['Entrada disponível', clean(body.calc_entrada, 40)],
@@ -100,7 +114,7 @@ export const POST: APIRoute = async ({ request }) => {
     _embedded: {
       contacts: [contato],
       tags: [{ name: 'Site' }, { name: origem }, ...(imovel ? [{ name: imovel }] : []), ...(utm.utm_source ? [{ name: `utm:${utm.utm_source}` }] : []),
-        ...(corretor ? [{ name: `Indicação: ${corretor.nome}` }] : [])],
+        ...(corretor && origemId !== 'captacao' ? [{ name: `Indicação: ${corretor.nome}` }] : [])],
     },
   };
   const pipeline = Number(env('KOMMO_PIPELINE_ID'));
