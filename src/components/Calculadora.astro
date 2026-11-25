@@ -27,7 +27,7 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     <div class="container">
       <span class="eyebrow">Calculadora gratuita</span>
       <h1>Qual imóvel <span class="gold-text">cabe no seu bolso?</span></h1>
-      <p>Responda 3 perguntas e descubra o seu poder de compra direto com a construtora e quais empreendimentos no litoral de SC cabem no seu orçamento.</p>
+      <p>Responda 4 perguntas e descubra o seu poder de compra direto com a construtora e quais empreendimentos no litoral de SC cabem no seu orçamento.</p>
       {corretor && (
         <div class="calc-corretor">
           <img src={corretor.foto?.src ?? '/img/equipe/sem-foto.svg'} alt={`Foto de ${corretor.nome}`} width="64" height="64">
@@ -46,7 +46,11 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
         <div class="form-row"><input id="c-entrada" name="entrada" inputmode="numeric" placeholder="R$ 100.000" data-moeda required></div>
         <label class="calc-label" for="c-parcela">2. Parcela mensal <small>quanto cabe no seu mês sem apertar</small></label>
         <div class="form-row"><input id="c-parcela" name="parcela" inputmode="numeric" placeholder="R$ 5.000" data-moeda required></div>
-        <label class="calc-label" for="c-reforco">3. Reforço anual <small>13º, bônus, férias… se não tiver, deixe em branco</small></label>
+        <label class="calc-label" for="c-chaves">3. Pagamento na entrega das chaves <small>percentual do valor do imóvel; o mínimo costuma ser 10%, o mesmo da entrada</small></label>
+        <div class="form-row">
+          <select id="c-chaves" name="chaves">{[0, 10, 15, 20, 25, 30].map((p) => <option value={p} selected={p === 10}>{p === 0 ? '0% (não vou pagar nas chaves)' : `${p}% do valor do imóvel`}</option>)}</select>
+        </div>
+        <label class="calc-label" for="c-reforco">4. Reforço anual <small>13º, bônus, férias… se não tiver, deixe em branco</small></label>
         <div class="form-row"><input id="c-reforco" name="reforco" inputmode="numeric" placeholder="R$ 20.000" data-moeda></div>
         <label class="calc-label" for="c-prazo">Em quantos meses? <small>o mais comum em pré-lançamento é 120</small></label>
         <div class="form-row">
@@ -72,6 +76,7 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
             {corretor && <input type="hidden" name="corretor" value={corretor.slug}>}
             <input type="hidden" name="calc_entrada">
             <input type="hidden" name="calc_parcela">
+            <input type="hidden" name="calc_chaves">
             <input type="hidden" name="calc_reforco">
             <input type="hidden" name="calc_prazo">
             <input type="hidden" name="calc_poder">
@@ -151,11 +156,16 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     const parcela = num((form.elements.namedItem('parcela') as HTMLInputElement).value);
     const reforco = num((form.elements.namedItem('reforco') as HTMLInputElement).value);
     const prazo = Number((form.elements.namedItem('prazo') as HTMLSelectElement).value);
+    const pctChaves = Number((form.elements.namedItem('chaves') as HTMLSelectElement).value) / 100;
     form.classList.toggle('error', !entrada || !parcela);
     if (!entrada || !parcela) return;
 
     const reforcos = Math.floor(prazo / 12);
-    const poder = entrada + parcela * prazo + reforco * reforcos;
+    // Até as chaves a pessoa paga entrada + parcelas + reforços; isso cobre (100% − % das chaves) do imóvel.
+    // Ex.: paga R$ 600 mil até as chaves e 10% nas chaves → imóvel de até R$ 666.667 (R$ 66.667 nas chaves).
+    const ateChaves = entrada + parcela * prazo + reforco * reforcos;
+    const poder = Math.round(ateChaves / (1 - pctChaves));
+    const valorChaves = poder - ateChaves;
     cabem = vitrine.filter((i) => i.valor <= poder).sort((a, b) => b.valor - a.valor);
     quase = vitrine.filter((i) => i.valor > poder && i.valor <= poder * QUASE).sort((a, b) => a.valor - b.valor);
 
@@ -163,6 +173,7 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     res.querySelector('[data-conta]')!.innerHTML = [
       `<li><span>Entrada</span><b>${brl(entrada)}</b></li>`,
       `<li><span>${prazo} parcelas de ${brl(parcela)}</span><b>${brl(parcela * prazo)}</b></li>`,
+      pctChaves ? `<li><span>Na entrega das chaves (${pctChaves * 100}%)</span><b>${brl(valorChaves)}</b></li>` : '',
       reforco ? `<li><span>${reforcos} reforços anuais de ${brl(reforco)}</span><b>${brl(reforco * reforcos)}</b></li>` : '',
     ].join('');
     const n = cabem.length;
@@ -176,12 +187,13 @@ const PRAZOS = [36, 48, 60, 72, 84, 100, 120];
     const set = (k: string, v: string) => ((leadForm.elements.namedItem(k) as HTMLInputElement).value = v);
     set('calc_entrada', brl(entrada));
     set('calc_parcela', brl(parcela));
+    set('calc_chaves', pctChaves ? `${pctChaves * 100}% (${brl(valorChaves)})` : 'Não vai pagar nas chaves');
     set('calc_reforco', reforco ? brl(reforco) : 'Não informado');
     set('calc_prazo', `${prazo} meses`);
     set('calc_poder', brl(poder));
     set('calc_imoveis', [...cabem.map((i) => i.nome), ...quase.map((i) => `${i.nome} (quase lá)`)].join(', ') || 'Nenhum na vitrine atual');
 
-    const msg = `${(window as any).__calc.saudacao}Fiz a simulação na calculadora do site da VERO: entrada de ${brl(entrada)}, parcela de ${brl(parcela)}${reforco ? ` e reforço anual de ${brl(reforco)}` : ''} em ${prazo} meses (poder de compra de ${brl(poder)}). Quero ajuda para escolher um imóvel.`;
+    const msg = `${(window as any).__calc.saudacao}Fiz a simulação na calculadora do site da VERO: entrada de ${brl(entrada)}, parcela de ${brl(parcela)}${pctChaves ? `, ${pctChaves * 100}% nas chaves` : ''}${reforco ? ` e reforço anual de ${brl(reforco)}` : ''} em ${prazo} meses (poder de compra de ${brl(poder)}). Quero ajuda para escolher um imóvel.`;
     lista.querySelector<HTMLAnchorElement>('[data-wa]')!.href = `https://wa.me/${(window as any).__calc.whatsDestino}?text=${encodeURIComponent(msg)}`;
 
     res.hidden = false;

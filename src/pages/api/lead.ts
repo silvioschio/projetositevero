@@ -84,6 +84,7 @@ export const POST: APIRoute = async ({ request }) => {
     ['Mensagem', clean(body.mensagem, 1500)],
     ['Entrada disponível', clean(body.calc_entrada, 40)],
     ['Parcela mensal', clean(body.calc_parcela, 40)],
+    ['Entrega das chaves', clean(body.calc_chaves, 60)],
     ['Reforço anual', clean(body.calc_reforco, 40)],
     ['Prazo', clean(body.calc_prazo, 40)],
     ['Poder de compra estimado', clean(body.calc_poder, 40)],

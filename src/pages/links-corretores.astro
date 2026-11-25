@@ -5,7 +5,7 @@ import { getEquipe } from '../lib/content';
 const equipe = await getEquipe();
 const link = (slug: string) => new URL(`/calculadora/${slug}/`, Astro.site).toString();
 const mensagem = (url: string) =>
-  `Você sabe qual imóvel cabe no seu bolso? 🏖️\n\nFiz uma calculadora rápida: você coloca a entrada, a parcela mensal e o reforço anual que consegue pagar e vê na hora quais empreendimentos no litoral de SC cabem no seu orçamento.\n\nFaça sua simulação grátis: ${url}`;
+  `Você sabe qual imóvel cabe no seu bolso? 🏖️\n\nFiz uma calculadora rápida: você coloca a entrada, a parcela mensal, o pagamento nas chaves e o reforço anual que consegue pagar e vê na hora quais empreendimentos no litoral de SC cabem no seu orçamento.\n\nFaça sua simulação grátis: ${url}`;
 ---
 <Base solidHeader noindex title="Links da calculadora para corretores | VERO" description="Página interna da equipe VERO.">
 <main>
