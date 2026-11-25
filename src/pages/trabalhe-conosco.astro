@@ -2,7 +2,6 @@
 // "Faça parte da nossa equipe": inscrição de corretores e estagiários.
 // Só a inscrição (sem currículo): o Silvio liga depois. O lead vai para o Kommo no nome do Silvio, etiqueta "Recrutamento".
 import Base from '../layouts/Base.astro';
-import { cidades } from '../lib/content';
 ---
 <Base solidHeader
   title="Faça parte da nossa equipe | Trabalhe como corretor na VERO – Porto Belo e Itapema"
@@ -38,7 +37,7 @@ import { cidades } from '../lib/content';
       <div class="lead-form">
         <form data-origem="recrutamento" novalidate>
           <h3>Quero fazer parte</h3>
-          <p class="sub">Preencha em 1 minuto. O Silvio vai te ligar para conhecer melhor o seu perfil.</p>
+          <p class="sub">Leva 30 segundos. O Silvio vai te ligar para conhecer melhor o seu perfil.</p>
           <input class="hp" type="text" name="empresa" tabindex="-1" autocomplete="off" aria-hidden="true">
           <div class="form-row"><input name="nome" placeholder="Seu nome completo" autocomplete="name" required></div>
           <div class="form-row two">
@@ -51,21 +50,6 @@ import { cidades } from '../lib/content';
               <option>Corretor com CRECI</option>
               <option>Estagiário / fazendo o TTI</option>
               <option>Quero começar na profissão</option>
-            </select>
-          </div>
-          <div class="form-row" data-creci hidden><input name="creci" placeholder="Número do CRECI (ex.: 12.345 F)" disabled></div>
-          <div class="form-row two">
-            <select name="experiencia" required aria-label="Experiência com imóveis">
-              <option value="">Experiência com imóveis</option>
-              <option>Nenhuma ainda</option><option>Até 1 ano</option><option>1 a 3 anos</option><option>Mais de 3 anos</option>
-            </select>
-            <select name="cidade" required aria-label="Cidade onde mora">
-              <option value="">Cidade onde mora</option>{cidades.map((c) => <option>{c.nome}</option>)}<option>Outra</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <select name="horario" aria-label="Melhor horário para ligação">
-              <option value="">Melhor horário para a ligação</option><option>Manhã</option><option>Tarde</option><option>Noite</option><option>Qualquer horário</option>
             </select>
           </div>
           <div class="form-row"><textarea name="mensagem" rows="3" placeholder="Conte um pouco sobre você (opcional)"></textarea></div>
@@ -83,16 +67,6 @@ import { cidades } from '../lib/content';
   </section>
 </main>
 </Base>
-
-<script>
-  // Campo CRECI aparece só para quem já é corretor
-  const perfil = document.querySelector<HTMLSelectElement>('[name=perfil]')!;
-  const creci = document.querySelector<HTMLElement>('[data-creci]')!;
-  perfil.addEventListener('change', () => {
-    creci.hidden = perfil.value !== 'Corretor com CRECI';
-    creci.querySelector('input')!.disabled = creci.hidden;
-  });
-</script>
 
 <style>
   .recruta { align-items: start; }
