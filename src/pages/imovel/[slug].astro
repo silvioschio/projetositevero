@@ -16,7 +16,7 @@ const enderecoCompleto = [i.endereco, i.bairro, `${i.cidade} – SC`].filter(Boo
 const suites = i.suitesMin ? faixa(i.suitesMin, i.suitesMax) : '';
 const empreendimento = i.empreendimentoSlug ? todos.find((o) => o.slug === i.empreendimentoSlug) : undefined;
 const fatos = [
-  i.areaMin && { v: faixa(i.areaMin, i.areaMax).replace(' a ', '–'), l: 'm² privativos' },
+  i.areaMin && { v: faixa(i.areaMin, i.areaMax).replace(' a ', '–'), l: i.tipo === 'Chácara' || i.tipo === 'Terreno' ? 'm² de área total' : 'm² privativos' },
   i.vagas && { v: String(i.vagas), l: i.vagas > 1 ? 'vagas' : 'vaga' },
   i.andar && { v: i.andar, l: 'andar' },
   suites && { v: suites, l: (i.suitesMax ?? i.suitesMin)! > 1 ? 'suítes' : 'suíte' },

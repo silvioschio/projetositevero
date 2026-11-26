@@ -24,7 +24,7 @@ export const imovel = defineType({
     defineField({ name: 'status', title: 'Estágio', type: 'string', group: 'principal', initialValue: 'Lançamento',
       options: { list: ['Pré-lançamento', 'Lançamento', 'Em obras', 'Pronto para morar'] }, validation: (r) => r.required() }),
     defineField({ name: 'tipo', title: 'Tipo', type: 'string', group: 'principal', initialValue: 'Apartamento',
-      options: { list: ['Apartamento', 'Cobertura', 'Studio', 'Casa', 'Sala comercial'] }, validation: (r) => r.required() }),
+      options: { list: ['Apartamento', 'Cobertura', 'Studio', 'Casa', 'Chácara', 'Terreno', 'Sala comercial'] }, validation: (r) => r.required() }),
     defineField({ name: 'destaque', title: 'Mostrar em destaque na página inicial?', type: 'boolean', group: 'principal', initialValue: false }),
     defineField({ name: 'ordem', title: 'Ordem no site', type: 'number', group: 'principal',
       description: 'Opcional. Menor número aparece primeiro (ex.: 10, 20, 30). Sem número, o imóvel aparece antes dos numerados, do mais novo para o mais antigo.' }),
@@ -42,7 +42,7 @@ export const imovel = defineType({
 
     defineField({ name: 'construtora', title: 'Construtora / incorporadora', type: 'string', group: 'detalhes' }),
     defineField({ name: 'diferenciais', title: 'Diferenciais', type: 'array', of: [{ type: 'string' }], group: 'detalhes' }),
-    defineField({ name: 'areaMin', title: 'Área privativa mínima (m²)', type: 'number', group: 'detalhes' }),
+    defineField({ name: 'areaMin', title: 'Área privativa mínima (m²) — em chácara/terreno, a área total', type: 'number', group: 'detalhes' }),
     defineField({ name: 'areaMax', title: 'Área privativa máxima (m²)', type: 'number', group: 'detalhes' }),
     defineField({ name: 'suitesMin', title: 'Suítes (mínimo)', type: 'number', group: 'detalhes' }),
     defineField({ name: 'suitesMax', title: 'Suítes (máximo)', type: 'number', group: 'detalhes' }),
