@@ -22,7 +22,7 @@ export const imovel = defineType({
     defineField({ name: 'finalidade', title: 'Finalidade', type: 'string', group: 'principal', initialValue: 'venda',
       options: { list: [{ title: 'Venda', value: 'venda' }, { title: 'Locação', value: 'locacao' }], layout: 'radio', direction: 'horizontal' }, validation: (r) => r.required() }),
     defineField({ name: 'status', title: 'Estágio', type: 'string', group: 'principal', initialValue: 'Lançamento',
-      options: { list: ['Pré-lançamento', 'Lançamento', 'Em obras', 'Pronto para morar'] }, validation: (r) => r.required() }),
+      options: { list: ['Pré-lançamento', 'Lançamento', 'Em obras', 'Pronto para morar', 'Disponível'] }, validation: (r) => r.required() }),
     defineField({ name: 'tipo', title: 'Tipo', type: 'string', group: 'principal', initialValue: 'Apartamento',
       options: { list: ['Apartamento', 'Cobertura', 'Studio', 'Casa', 'Chácara', 'Terreno', 'Sala comercial'] }, validation: (r) => r.required() }),
     defineField({ name: 'destaque', title: 'Mostrar em destaque na página inicial?', type: 'boolean', group: 'principal', initialValue: false }),

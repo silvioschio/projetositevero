@@ -16,7 +16,7 @@ export interface Planta {
 export interface Imovel {
   slug: string;
   nome: string;
-  status: 'Pré-lançamento' | 'Lançamento' | 'Em obras' | 'Pronto para morar';
+  status: 'Pré-lançamento' | 'Lançamento' | 'Em obras' | 'Pronto para morar' | 'Disponível';
   finalidade: 'venda' | 'locacao';
   tipo: 'Apartamento' | 'Cobertura' | 'Studio' | 'Casa' | 'Chácara' | 'Terreno' | 'Sala comercial';
   cidade: Cidade;
