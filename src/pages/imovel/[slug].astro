@@ -30,7 +30,7 @@ const restantes = i.fotos.length - fotosGaleria.length;
 const opcoesPlanta = (i.plantas ?? []).map((p) => `${p.suites} · ${p.area}`);
 const eco = economia(i.preco, i.precoTabela);
 const valores = i.revenda ? ([
-  ['Valor de venda', i.preco ?? 'Sob consulta'],
+  [i.finalidade === 'locacao' ? 'Aluguel' : 'Valor de venda', i.preco ?? 'Sob consulta'],
   ['Preço de tabela da construtora', i.precoTabela],
   ['Economia', eco ? `${eco.valor} (${eco.pct})` : undefined],
   ['Torre', i.torre], ['Andar', i.andar], ['Posição', i.posicao],
@@ -42,7 +42,8 @@ const valores = i.revenda ? ([
 const semelhantes = todos.filter((o) => o.slug !== i.slug && o.finalidade === i.finalidade)
   .sort((a, b) => Number(b.cidade === i.cidade) - Number(a.cidade === i.cidade)).slice(0, 3);
 
-const titulo = `${i.nome} | ${i.tipo === 'Apartamento' ? 'Apartamentos' : i.tipo} à venda ${i.bairro ? `no ${i.bairro}, ` : 'em '}${i.cidade} – SC`;
+const aluguel = i.finalidade === 'locacao';
+const titulo = `${i.nome} | ${i.tipo === 'Apartamento' ? 'Apartamentos' : i.tipo} ${aluguel ? 'para alugar' : 'à venda'} ${i.bairro ? `no ${i.bairro}, ` : 'em '}${i.cidade} – SC`;
 const mapQuery = encodeURIComponent([i.endereco, i.bairro, i.cidade, 'SC'].filter(Boolean).join(', '));
 
 const jsonLd = [
@@ -122,7 +123,7 @@ const jsonLd = [
           {i.condicoes && i.condicoes.length > 0 && <>
             <h3 style="font-family:var(--serif);font-weight:500;font-size:22px;margin:30px 0 4px">Condições de pagamento</h3>
             <ul class="check-list" style="margin-top:16px">{i.condicoes.map((c) => <li>{c}</li>)}</ul>
-            <p class="disclaimer" style="margin-top:10px">Valores de referência, sujeitos a confirmação no momento da negociação. Saldo corrigido pelo CUB/SC conforme contrato com a construtora.</p>
+            <p class="disclaimer" style="margin-top:10px">Valores de referência, sujeitos a confirmação no momento da negociação.</p>
           </>}
           {empreendimento && <p style="margin-top:20px"><a href={`/imovel/${empreendimento.slug}/`} style="color:var(--gold);text-decoration:underline">Conheça todos os detalhes do {empreendimento.nome} →</a></p>}
         </div>
@@ -168,16 +169,16 @@ const jsonLd = [
         <a href="#interesse" class="btn btn-gold">Quero a análise de investimento</a>
       </div>
 
-      <p class="disclaimer">Imagens meramente ilustrativas. Informações sujeitas a alteração pela incorporadora. Venda somente a partir do registro de incorporação, nos termos da Lei Federal nº 4.591/64.</p>
+      <p class="disclaimer">Imagens meramente ilustrativas. Informações sujeitas a alteração{aluguel ? '.' : ' pela incorporadora.'}{!aluguel && ' Venda somente a partir do registro de incorporação, nos termos da Lei Federal nº 4.591/64.'}</p>
     </div>
 
     <aside class="prop-sticky">
       <LeadForm id="interesse" origem={`imovel-${i.slug}`} variante="imovel" imovel={i.nome} plantas={opcoesPlanta}
-        titulo={i.revenda ? 'Tenho interesse nesta unidade' : i.status === 'Pré-lançamento' ? 'Receba a tabela em primeira mão' : 'Receba tabela de preços e plantas'}
-        sub={i.revenda ? 'Receba a planta, os detalhes da negociação e agende uma conversa.' : i.status === 'Pré-lançamento' ? 'Cadastre-se e seja avisado antes da abertura das vendas, com as melhores unidades disponíveis.' : 'Enviamos valores, disponibilidade e condições de pagamento.'}
+        titulo={aluguel ? 'Quero alugar este imóvel' : i.revenda ? 'Tenho interesse nesta unidade' : i.status === 'Pré-lançamento' ? 'Receba a tabela em primeira mão' : 'Receba tabela de preços e plantas'}
+        sub={aluguel ? 'Receba os detalhes da locação e agende uma visita.' : i.revenda ? 'Receba a planta, os detalhes da negociação e agende uma conversa.' : i.status === 'Pré-lançamento' ? 'Cadastre-se e seja avisado antes da abertura das vendas, com as melhores unidades disponíveis.' : 'Enviamos valores, disponibilidade e condições de pagamento.'}
         botao={i.revenda ? 'Quero saber mais' : i.status === 'Pré-lançamento' ? 'Quero ser avisado' : 'Receber informações'}
-        sucesso={i.revenda ? 'Um especialista da VERO vai falar com você em breve sobre esta unidade.' : `Em breve você recebe a tabela e as plantas do ${i.nome}.`} />
-      <a class="calc-link" href="/calculadora/">Descubra se este imóvel cabe no seu bolso →</a>
+        sucesso={aluguel || i.revenda ? 'Um especialista da VERO vai falar com você em breve sobre esta unidade.' : `Em breve você recebe a tabela e as plantas do ${i.nome}.`} />
+      {!aluguel && <a class="calc-link" href="/calculadora/">Descubra se este imóvel cabe no seu bolso →</a>}
     </aside>
   </div>
 
