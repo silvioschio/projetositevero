@@ -18,7 +18,7 @@ export interface Imovel {
   nome: string;
   status: 'Pré-lançamento' | 'Lançamento' | 'Em obras' | 'Pronto para morar' | 'Disponível';
   finalidade: 'venda' | 'locacao';
-  tipo: 'Apartamento' | 'Cobertura' | 'Studio' | 'Casa' | 'Chácara' | 'Terreno' | 'Sala comercial';
+  tipo: 'Apartamento' | 'Cobertura' | 'Studio' | 'Casa' | 'Terreno / Chácara' | 'Sala comercial';
   cidade: Cidade;
   bairro?: string;
   endereco?: string;

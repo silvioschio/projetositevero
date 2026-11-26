@@ -9,7 +9,7 @@ const { imoveis, cidadeFixa } = Astro.props;
   {!cidadeFixa && (
     <select name="cidade" aria-label="Cidade"><option value="">Todas as cidades</option>{cidades.map((c) => <option>{c.nome}</option>)}</select>
   )}
-  <select name="tipo" aria-label="Tipo"><option value="">Todos os tipos</option><option>Apartamento</option><option>Cobertura</option><option>Studio</option><option>Casa</option><option>Chácara</option><option>Terreno</option></select>
+  <select name="tipo" aria-label="Tipo"><option value="">Todos os tipos</option><option>Apartamento</option><option>Cobertura</option><option>Studio</option><option>Casa</option><option>Terreno / Chácara</option></select>
   <select name="suites" aria-label="Suítes"><option value="">Qualquer nº de suítes</option><option value="1">1+ suíte</option><option value="2">2+ suítes</option><option value="3">3+ suítes</option><option value="4">4+ suítes</option></select>
   <select name="status" aria-label="Estágio"><option value="">Qualquer estágio</option><option>Pré-lançamento</option><option>Lançamento</option><option>Em obras</option><option>Pronto para morar</option><option>Disponível</option></select>
 </div>
