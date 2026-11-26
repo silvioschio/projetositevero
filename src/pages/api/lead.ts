@@ -57,10 +57,15 @@ export const POST: APIRoute = async ({ request }) => {
     ? { nome: 'Silvio Schio', kommoNome: 'SILVIO' }
     : await buscaCorretor(clean(body.corretor, 80));
 
+  // Captador do imóvel (aba Interno do painel), só para leads vindos da página de um imóvel
+  const captacao = origemId.startsWith('imovel-') ? await buscaCaptador(origemId.slice('imovel-'.length)) : null;
+  const captadorTexto = captacao?.nome ? `${captacao.nome}${captacao.exclusividade ? ' (com exclusividade)' : ''}` : '';
+
   const detalhes: [string, string][] = [
     ['Origem', origem],
     ['Corretor que indicou', paraSilvio ? '' : corretor?.nome ?? ''],
     ['Imóvel', imovel],
+    ['Captador do imóvel', captadorTexto],
     ['Planta', clean(body.planta)],
     ['Objetivo', clean(body.objetivo)],
     ['Interesse', clean(body.interesse)],
@@ -120,7 +125,7 @@ export const POST: APIRoute = async ({ request }) => {
     name: `Site · ${imovel || origem} · ${nome}`,
     _embedded: {
       contacts: [contato],
-      tags: [{ name: 'Site' }, { name: origem }, ...(imovel ? [{ name: imovel }] : []), ...(utm.utm_source ? [{ name: `utm:${utm.utm_source}` }] : []),
+      tags: [{ name: 'Site' }, { name: origem }, ...(imovel ? [{ name: imovel }] : []), ...(captacao?.nome ? [{ name: `Captação: ${captacao.nome}` }] : []), ...(utm.utm_source ? [{ name: `utm:${utm.utm_source}` }] : []),
         ...(corretor && !paraSilvio ? [{ name: `Indicação: ${corretor.nome}` }] : [])],
     },
   };
@@ -264,6 +269,22 @@ async function buscaCorretor(slug: string): Promise<{ nome: string; kommoNome?: 
     return d?.result?.nome ? d.result : null;
   } catch (err) {
     console.error('[lead] Não foi possível consultar o corretor no painel', err);
+    return null;
+  }
+}
+
+// ---- Captador do imóvel (campo interno do painel; não aparece no site) ----
+async function buscaCaptador(slug: string): Promise<{ nome: string; exclusividade?: boolean } | null> {
+  const pid = env('SANITY_PROJECT_ID');
+  if (!slug || !pid || !/^[a-z0-9-]+$/.test(slug)) return null;
+  const ds = env('SANITY_DATASET') || 'production';
+  const q = encodeURIComponent('*[_type == "imovel" && slug.current == $slug && !(_id in path("drafts.**"))][0]{"nome": coalesce(captador->nome, captadorOutro), exclusividade}');
+  try {
+    const r = await fetch(`https://${pid}.api.sanity.io/v2025-01-01/data/query/${ds}?query=${q}&%24slug=${encodeURIComponent(JSON.stringify(slug))}`);
+    const d = (await r.json()) as any;
+    return d?.result?.nome ? d.result : null;
+  } catch (err) {
+    console.error('[lead] Não foi possível consultar o captador no painel', err);
     return null;
   }
 }
