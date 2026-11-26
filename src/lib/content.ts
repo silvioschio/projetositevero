@@ -20,7 +20,9 @@ const img = (source: any, width = 1600) =>
   imgBuilder && source?.asset ? imgBuilder.image(source).width(width).auto('format').quality(80).url() : '';
 
 // ---------- Imóveis ----------
-function mapImovel(d: any): Imovel {
+function mapImovel(raw: any): Imovel {
+  // Campos internos (captação) ficam fora do site.
+  const { captador, captadorOutro, dataCaptacao, exclusividade, ...d } = raw;
   return {
     ...d,
     slug: d.slug?.current ?? d.slug,

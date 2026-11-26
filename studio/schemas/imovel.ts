@@ -10,6 +10,7 @@ export const imovel = defineType({
     { name: 'fotos', title: 'Fotos' },
     { name: 'local', title: 'Localização' },
     { name: 'revenda', title: 'Revenda' },
+    { name: 'interno', title: 'Interno (não aparece no site)' },
   ],
   fields: [
     defineField({ name: 'nome', title: 'Nome do empreendimento', type: 'string', group: 'principal', validation: (r) => r.required() }),
@@ -103,9 +104,21 @@ export const imovel = defineType({
     defineField({ name: 'condicoes', title: 'Condições de pagamento', type: 'array', of: [{ type: 'string' }], group: 'revenda', hidden: ({ document }) => !document?.revenda }),
     defineField({ name: 'aceitaFinanciamento', title: 'Aceita financiamento?', type: 'boolean', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
     defineField({ name: 'aceitaPermuta', title: 'Aceita permuta?', type: 'boolean', group: 'revenda', hidden: ({ document }) => !document?.revenda }),
+
+    // Controle interno: não é exibido no site. Atenção: o banco de dados é de leitura pública,
+    // então NÃO registre aqui telefone, e-mail ou dados pessoais do proprietário.
+    defineField({ name: 'captador', title: 'Corretor captador', type: 'reference', to: [{ type: 'corretor' }], group: 'interno',
+      description: 'Quem captou o imóvel. Só para controle interno: não aparece no site.' }),
+    defineField({ name: 'captadorOutro', title: 'Captador (se não estiver na lista)', type: 'string', group: 'interno',
+      description: 'Ex.: Silvio, ou um parceiro. Preencha só se o captador não estiver na lista acima.' }),
+    defineField({ name: 'dataCaptacao', title: 'Data da captação', type: 'date', group: 'interno', options: { dateFormat: 'DD/MM/YYYY' } }),
+    defineField({ name: 'exclusividade', title: 'Captado com exclusividade?', type: 'boolean', group: 'interno' }),
   ],
   preview: {
-    select: { title: 'nome', cidade: 'cidade', status: 'status', media: 'fotos.0' },
-    prepare: ({ title, cidade, status, media }) => ({ title, subtitle: [cidade, status].filter(Boolean).join(' · '), media }),
+    select: { title: 'nome', cidade: 'cidade', status: 'status', media: 'fotos.0', captador: 'captador.nome', captadorOutro: 'captadorOutro' },
+    prepare: ({ title, cidade, status, media, captador, captadorOutro }) => ({
+      title, media,
+      subtitle: [cidade, status, (captador || captadorOutro) && `Captação: ${captador || captadorOutro}`].filter(Boolean).join(' · '),
+    }),
   },
 });
